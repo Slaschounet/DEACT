@@ -1,6 +1,18 @@
 # DEACT
 Tool for editing and adding decks used in Tabletop Simulator
 
+# Version 0.3.0
+Added style selection window. New card info on hover (Image icon to open style window, amount of card in deck, zone of card (companion/commander or Library)). More style improvements.
+
+Selecting A Card Style
+1. Once your deck is imported hover on the card you wish to change the style of.
+2. When hovered 3 items will appear at the bottom of the card.
+3. Select the image icon on the left.
+4. A new window will open with all the styles queried from scryfall (or grabbed from cache if you have looked at this card before)
+5. Click on the one you wish to chose, or you can add and chose a custom URL at the bottom of the window.
+6. All done. Save your deck.
+
+
 # Version 0.2.1
 Style improvements. logic cleanup for card back changer. Added deck import and individual card editing.
 

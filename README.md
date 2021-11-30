@@ -1,6 +1,14 @@
 # DEACT
 Tool for editing and adding decks used in Tabletop Simulator
 
+# Version 0.3.2
+Added support for cards with content on their backs. Transform and modal cards will now have their back faces listed in the card list and will properly query scryfall for the back face in the style selection window.
+
+My art is still not showing. Whats the cache?
+- URLS are cached per card when you first query it. 
+- These cached entries expire after 24 hrs.
+- If for some reason you need to clear your cache it is located in C:/ProgramData/DEACT (just delete the text file in there)
+
 # Version 0.3.0
 Added style selection window. New card info on hover (Image icon to open style window, amount of card in deck, zone of card (companion/commander or Library)). More style improvements.
 

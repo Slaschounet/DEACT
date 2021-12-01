@@ -1,6 +1,21 @@
 # DEACT
 Tool for editing and adding decks used in Tabletop Simulator
 
+# Version 0.3.3
+Added merge option. Merge takes an old deck as reference for card art then a new deck list and applies any of the old art to the new list.
+
+Why Merge?
+- Merge saves time when making new lists that are just alterations of previous lists.
+- Previously when you made a new list you would have to re-enter all the art for that new list.
+- Now you can use the merge option with your old list and new list and cut right to changing the new cards.
+
+How to Merge?
+1. Select the merge option from the home page.
+2. Enter or browse for the path to your OLD list (this is the list that already has all your custom art selected).
+3. Enter or browse for the path to your NEW list (this is the new list that you wish to add art to)
+4. Click import, DEACT will automatically take any matching cards from the old list and use them for the new list as it loads in.
+5. All done! You can continue editing but make sure you SAVE.
+
 # Version 0.3.2
 Added support for cards with content on their backs. Transform and modal cards will now have their back faces listed in the card list and will properly query scryfall for the back face in the style selection window.
 

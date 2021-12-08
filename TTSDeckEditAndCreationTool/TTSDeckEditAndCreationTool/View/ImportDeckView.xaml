@@ -1,0 +1,26 @@
+﻿<UserControl x:Class="TTSDeckEditAndCreationTool.View.ImportDeckView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TTSDeckEditAndCreationTool.View"
+             mc:Ignorable="d" 
+             Height="200" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="80"/>
+        </Grid.ColumnDefinitions>
+
+        <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="15" Style="{DynamicResource BoldLabel}">File: </Label>
+        <TextBox Grid.Column="1" Height="20" Margin="10,0" Background="Transparent" Foreground="White" Text="{Binding DeckFilePath}" FontFamily="{StaticResource CoreFont}" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+        <Button Grid.Column="2" Margin="5" Height="25" Style="{DynamicResource FlatButtonStyle}" Command="{Binding BrowseFileCommand}" Background="{StaticResource Good}">Browse</Button>
+
+        <Button Grid.Column="1" Grid.Row="1" Height="30" Margin="20,0" Style="{DynamicResource FlatButtonStyle}" Background="{StaticResource Good}" Command="{Binding ImportSelectedPathCommand}">Import</Button>
+    </Grid>
+</UserControl>

@@ -1,0 +1,25 @@
+﻿<Window x:Class="TTSDeckEditAndCreationTool.View.FeedbackPopupView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TTSDeckEditAndCreationTool.View"
+        mc:Ignorable="d"
+        WindowStyle="None"
+        ResizeMode="CanResizeWithGrip" AllowsTransparency="True"
+        Title="FeedbackPopupView" Height="200" Width="400">
+    <Grid Background="#FF1B1B1B" MouseDown="Grid_MouseDown">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+
+        <Label Style="{DynamicResource BoldLabel}" Content="{Binding NotifLabel, FallbackValue=Notice}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="22"/>
+
+        <TextBox Background="Transparent" Foreground="White" Text="{Binding Message, FallbackValue=Here_is_Somthing}" Margin="5" Grid.Row="1"/>
+
+        <Button Style="{DynamicResource FlatButtonStyle}" Content="Ok" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Width="100" Click="Button_Click"/>
+
+    </Grid>
+</Window>

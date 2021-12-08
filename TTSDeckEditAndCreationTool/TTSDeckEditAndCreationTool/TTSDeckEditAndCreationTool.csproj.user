@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_LastSelectedProfileId>C:\Users\tonyr\source\repos\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ApplicationDefinition Update="App.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="View\CardBuilderView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\CardStyleView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\DeckBuilderView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\FeedbackPopupView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\HomeView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\ImportDeckView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\MergeDeckView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\QuickBG.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="View\StyleSelectionView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\CardBuilderView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\CardStyleView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\DeckBuilderView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\FeedbackPopupView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\HomeView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\ImportDeckView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\MergeDeckView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\QuickBG.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="View\StyleSelectionView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+</Project>

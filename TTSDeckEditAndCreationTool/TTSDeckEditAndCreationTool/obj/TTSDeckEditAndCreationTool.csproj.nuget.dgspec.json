@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tonyr\\source\\repos\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj": {}
+    "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tonyr\\source\\repos\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj": {
+    "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tonyr\\source\\repos\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
+        "projectUniqueName": "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
         "projectName": "DEACT",
-        "projectPath": "C:\\Users\\tonyr\\source\\repos\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
+        "projectPath": "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
         "packagesPath": "C:\\Users\\tonyr\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tonyr\\source\\repos\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\obj\\",
+        "outputPath": "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\tonyr\\AppData\\Roaming\\NuGet\\NuGet.Config",

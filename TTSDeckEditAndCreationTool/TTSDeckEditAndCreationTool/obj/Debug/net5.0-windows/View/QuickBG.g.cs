@@ -53,7 +53,7 @@ namespace TTSDeckEditAndCreationTool.View {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/TTSDeckEditAndCreationTool;component/view/quickbg.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/TTSDeckEditAndCreationTool;V1.0.3.3;component/view/quickbg.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\View\QuickBG.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

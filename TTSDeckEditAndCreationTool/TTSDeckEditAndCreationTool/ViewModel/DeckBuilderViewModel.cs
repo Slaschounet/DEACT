@@ -110,9 +110,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
 
             //PART 2 : PARSE OUT CARDS
-
-            //LARGE PREFACE: THERE IS A LOT OF REDUNDANCY HERE. Ideally this all should be reconfigured in some way.
-            // - The best option would be to create models for the data so that the json can just be converted and objects than can be handled correctly.
+            //TODO: Right now this is pretty brute force on navigating the JSON. Ideally I would like to have a replica model of TTS objects so that not only is this cleaner but we can then move into deck creation and management as well.
 
             var savedObjs = rawDeck.ObjectStates;
 
@@ -121,184 +119,20 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 for (int i = 0; i < savedObjs.GetArrayLength(); i++)
                 {
                     JsonElement cObj = savedObjs[i];
+                    JsonElement containedobjects;
 
-                    JsonElement nickname, customdeck, statescustomdeck, cardstates, faceurl = new JsonElement(), cardid, containedobjects;
-
-                    bool isDeck = cObj.TryGetProperty("ContainedObjects", out containedobjects);
+                    bool isDeck = cObj.TryGetProperty("ContainedObjects", out containedobjects); //if isDeck then the object in the list is a pile of cards rather than a single
 
                     if (isDeck)
                     {
                         foreach (JsonElement jelement in containedobjects.EnumerateArray())
                         {
-                            //clean up just to avoid issues
-                            nickname = new JsonElement();
-                            faceurl = new JsonElement();
-                            cardid = new JsonElement();
-                            customdeck = new JsonElement();
-                            cardstates = new JsonElement();
-
-                            //grab initially available information
-                            jelement.TryGetProperty("Nickname", out nickname);
-                            jelement.TryGetProperty("CardID", out cardid);
-                            jelement.TryGetProperty("CustomDeck", out customdeck);
-
-                            bool hasStates = jelement.TryGetProperty("States", out cardstates); //check if the card has states. (relevant for cards with content on the back face)
-
-                            foreach (JsonProperty jproperty in customdeck.EnumerateObject())
-                            {
-                                jproperty.Value.TryGetProperty("FaceURL", out faceurl);
-                                if (string.IsNullOrWhiteSpace(_oldCardBackURL))
-                                {
-                                    JsonElement cardback;
-                                    jproperty.Value.TryGetProperty("BackURL", out cardback);
-                                    string backValue = cardback.GetString();
-                                    if (!string.IsNullOrWhiteSpace(backValue))
-                                    {
-                                        CardBackURL = _oldCardBackURL = cardback.GetString();
-                                    }
-                                }
-                            }
-                            if (CardLookup.ContainsKey(faceurl.GetString()))
-                            {
-                                CardLookup[faceurl.GetString()].Count++;
-                            }
-                            else
-                            {
-                                string nick = nickname.GetString();
-                                string face = faceurl.GetString();
-                                if (CardArt.ContainsKey(nick))
-                                {
-                                    face = CardArt[nick];
-                                }
-                                else
-                                {
-                                    CardArt.Add(nick, face);
-                                }
-                                CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face));
-                                temp.Card.Cardname = nick.Split('\n')[0];
-                                CardLookup.Add(face, temp.Card);
-                                DeckCards.Add(temp);
-                            }
-
-                            if (hasStates)
-                            {
-                                //this means its the BACK of the card
-                                foreach (JsonProperty jproperty in cardstates.EnumerateObject())
-                                {
-                                    jproperty.Value.TryGetProperty("Nickname", out nickname);
-                                    jproperty.Value.TryGetProperty("CardID", out cardid);
-                                    jproperty.Value.TryGetProperty("CustomDeck", out statescustomdeck);
-
-                                    foreach (JsonProperty statejproperty in statescustomdeck.EnumerateObject())
-                                    {
-                                        statejproperty.Value.TryGetProperty("FaceURL", out faceurl);
-                                    }
-
-                                    if (CardLookup.ContainsKey(faceurl.GetString()))
-                                    {
-                                        CardLookup[faceurl.GetString()].Count++;
-                                    }
-                                    else
-                                    {
-                                        string nick = nickname.GetString();
-                                        string face = faceurl.GetString();
-                                        if (CardArt.ContainsKey(nick))
-                                        {
-                                            face = CardArt[nick];
-                                        }
-                                        else
-                                        {
-                                            CardArt.Add(nick, face);
-                                        }
-                                        CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, 'L', 1, true));
-                                        temp.Card.Cardname = nick.Split('\n')[0];
-                                        CardLookup.Add(face, temp.Card);
-                                        DeckCards.Add(temp);
-                                    }
-                                }
-                            }
+                            ParseJElementCard(jelement);
                         }
                     }
                     else
                     {
-                        cObj.TryGetProperty("Nickname", out nickname);
-                        cObj.TryGetProperty("CardID", out cardid);
-                        cObj.TryGetProperty("CustomDeck", out customdeck);
-                        bool hasStates = cObj.TryGetProperty("States", out cardstates);
-                        foreach (JsonProperty jproperty in customdeck.EnumerateObject())
-                        {
-                            jproperty.Value.TryGetProperty("FaceURL", out faceurl);
-                            if (string.IsNullOrWhiteSpace(_oldCardBackURL))
-                            {
-                                JsonElement cardback;
-                                jproperty.Value.TryGetProperty("BackURL", out cardback);
-                                string backValue = cardback.GetString();
-                                if (!string.IsNullOrWhiteSpace(backValue))
-                                {
-                                    CardBackURL = _oldCardBackURL = cardback.GetString();
-                                }
-                            }
-                        }
-
-                        if (CardLookup.ContainsKey(faceurl.GetString()))
-                        {
-                            CardLookup[faceurl.GetString()].Count++;
-                        }
-                        else
-                        {
-                            string nick = nickname.GetString();
-                            string face = faceurl.GetString();
-                            if (CardArt.ContainsKey(nick))
-                            {
-                                face = CardArt[nick];
-                            }
-                            else
-                            {
-                                CardArt.Add(nick, face);
-                            }
-                            CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nickname.GetString(), cardid.GetInt32(), face, 'C'));
-                            temp.Card.Cardname = nick.Split('\n')[0];
-                            CardLookup.Add(face, temp.Card);
-                            DeckCards.Add(temp);
-                        }
-
-                        if (hasStates)
-                        {
-                            //This means its the BACK of the card
-                            foreach (JsonProperty jproperty in cardstates.EnumerateObject())
-                            {
-                                jproperty.Value.TryGetProperty("Nickname", out nickname);
-                                jproperty.Value.TryGetProperty("CardID", out cardid);
-                                jproperty.Value.TryGetProperty("CustomDeck", out statescustomdeck);
-
-                                foreach (JsonProperty statejproperty in statescustomdeck.EnumerateObject())
-                                {
-                                    statejproperty.Value.TryGetProperty("FaceURL", out faceurl);
-                                }
-
-                                if (CardLookup.ContainsKey(faceurl.GetString()))
-                                {
-                                    CardLookup[faceurl.GetString()].Count++;
-                                }
-                                else
-                                {
-                                    string nick = nickname.GetString();
-                                    string face = faceurl.GetString();
-                                    if (CardArt.ContainsKey(nick))
-                                    {
-                                        face = CardArt[nick];
-                                    }
-                                    else
-                                    {
-                                        CardArt.Add(nick, face);
-                                    }
-                                    CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, 'C', 1, true));
-                                    temp.Card.Cardname = nick.Split('\n')[0];
-                                    CardLookup.Add(face, temp.Card);
-                                    DeckCards.Add(temp);
-                                }
-                            }
-                        }
+                        ParseJElementCard(cObj);
                     }
                 }
             }
@@ -311,6 +145,69 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             //PART 3 : LOAD ON SCREEN
             OnPropertyChanged(nameof(DeckCards));
             OnPropertyChanged(nameof(CardBackURL));
+        }
+
+        private void ParseJElementCard(JsonElement jle)
+        {
+            JsonElement cardstates;
+
+            bool hasStates = jle.TryGetProperty("States", out cardstates); //check if the card has states. (relevant for cards with content on the back face)
+
+            ParseJElementCardFace(jle);
+
+            if (hasStates)
+            {
+                //this means its the BACK of the card
+                foreach (JsonProperty jproperty in cardstates.EnumerateObject())
+                {
+                    ParseJElementCardFace(jproperty.Value);
+                }
+            }
+        }
+
+        private void ParseJElementCardFace(JsonElement jle)
+        {
+            JsonElement nickname, customdeck, faceurl = new JsonElement(), cardid;
+
+            jle.TryGetProperty("Nickname", out nickname);
+            jle.TryGetProperty("CardID", out cardid);
+            jle.TryGetProperty("CustomDeck", out customdeck);
+
+            foreach (JsonProperty jproperty in customdeck.EnumerateObject())
+            {
+                jproperty.Value.TryGetProperty("FaceURL", out faceurl);
+                if (string.IsNullOrWhiteSpace(_oldCardBackURL))
+                {
+                    JsonElement cardback;
+                    jproperty.Value.TryGetProperty("BackURL", out cardback);
+                    string backValue = cardback.GetString();
+                    if (!string.IsNullOrWhiteSpace(backValue))
+                    {
+                        CardBackURL = _oldCardBackURL = cardback.GetString();
+                    }
+                }
+            }
+            if (CardLookup.ContainsKey(faceurl.GetString()))
+            {
+                CardLookup[faceurl.GetString()].Count++;
+            }
+            else
+            {
+                string nick = nickname.GetString();
+                string face = faceurl.GetString();
+                if (CardArt.ContainsKey(nick))
+                {
+                    face = CardArt[nick];
+                }
+                else
+                {
+                    CardArt.Add(nick, face);
+                }
+                CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face));
+                temp.Card.Cardname = nick.Split('\n')[0];
+                if (!CardLookup.ContainsKey(face)) CardLookup.Add(face, temp.Card);
+                DeckCards.Add(temp);
+            }
         }
 
         public void SaveDeckToPath()

@@ -187,9 +187,9 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                     }
                 }
             }
-            if (CardLookup.ContainsKey(faceurl.GetString()))
+            if (CardLookup.ContainsKey(nickname.GetString()))
             {
-                CardLookup[faceurl.GetString()].Count++;
+                CardLookup[nickname.GetString()].Count++;
             }
             else
             {
@@ -205,7 +205,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 }
                 CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face));
                 temp.Card.Cardname = nick.Split('\n')[0];
-                if (!CardLookup.ContainsKey(face)) CardLookup.Add(face, temp.Card);
+                if (!CardLookup.ContainsKey(nick)) CardLookup.Add(nick, temp.Card);
                 DeckCards.Add(temp);
             }
         }

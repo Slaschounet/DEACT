@@ -1,6 +1,10 @@
 # DEACT
 Tool for editing and adding decks used in Tabletop Simulator
 
+# Added Open Source
+Added the full project source. Feel free to grab it and look it over or modify as you see fit.
+The project is .net with wpf, you will most likely want to just use visual studio and open the .sln
+
 # Version 0.3.3
 Added merge option. Merge takes an old deck as reference for card art then a new deck list and applies any of the old art to the new list.
 

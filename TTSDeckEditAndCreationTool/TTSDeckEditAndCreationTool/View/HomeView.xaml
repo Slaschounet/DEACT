@@ -43,6 +43,6 @@
         <Rectangle Grid.Row="1" Fill="{StaticResource MainLight}"/>
         <Label Grid.Row="1" Foreground="White" VerticalAlignment="Center" FontFamily="{StaticResource LightFont}" Margin="20,0">@antraiti</Label>
         <!--<Label Grid.Row="1" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="{StaticResource LightFont}" Margin="20,0">UNOFFICIAL VERSION</Label>-->
-        <Label Grid.Row="1" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Right" FontFamily="{StaticResource LightFont}" Margin="20,0">v0.3.3</Label>
+        <Label Grid.Row="1" Foreground="White" VerticalAlignment="Center" HorizontalAlignment="Right" FontFamily="{StaticResource LightFont}" Margin="20,0">v0.3.4</Label>
     </Grid>
 </UserControl>

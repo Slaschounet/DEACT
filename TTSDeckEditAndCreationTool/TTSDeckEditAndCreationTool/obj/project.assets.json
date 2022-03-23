@@ -8,19 +8,19 @@
     "net5.0-windows7.0": []
   },
   "packageFolders": {
-    "C:\\Users\\tonyr\\.nuget\\packages\\": {}
+    "C:\\Users\\Tony\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
+      "projectUniqueName": "C:\\Users\\Tony\\Documents\\Projects\\VisualStudio\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
       "projectName": "DEACT",
-      "projectPath": "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
-      "packagesPath": "C:\\Users\\tonyr\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tonyr\\Documents\\Coding\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\obj\\",
+      "projectPath": "C:\\Users\\Tony\\Documents\\Projects\\VisualStudio\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool.csproj",
+      "packagesPath": "C:\\Users\\Tony\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Tony\\Documents\\Projects\\VisualStudio\\DEACT\\TTSDeckEditAndCreationTool\\TTSDeckEditAndCreationTool\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\tonyr\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Tony\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -63,7 +63,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
       }
     }
   }

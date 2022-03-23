@@ -183,7 +183,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 Console.WriteLine(exception);
             }
 
-            if(hasNext.ValueKind != JsonValueKind.Null && hasNext.GetBoolean())
+            if(hasNext.ValueKind != JsonValueKind.Null && hasNext.ValueKind != JsonValueKind.Undefined && hasNext.GetBoolean())
             {
                 FetchAndAdd(nextUrl.GetString());
             }

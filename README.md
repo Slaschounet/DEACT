@@ -5,6 +5,9 @@ Tool for editing and adding decks used in Tabletop Simulator
 Added the full project source. Feel free to grab it and look it over or modify as you see fit.
 The project is .net with wpf, you will most likely want to just use visual studio and open the .sln
 
+# Version 0.3.4
+Fixed crashing when opening card style for a card that does not exist so you can add art for custom cards. Fixed issue where card style window was showing front of card art for the backside of cards. If this is still showing issues for you be sure to delete your cache (instructions below).
+
 # Version 0.3.3
 Added merge option. Merge takes an old deck as reference for card art then a new deck list and applies any of the old art to the new list.
 

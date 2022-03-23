@@ -1,0 +1,5 @@
+C:\Users\Tony\Documents\Projects\VisualStudio\DEACT\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.exe
+C:\Users\Tony\Documents\Projects\VisualStudio\DEACT\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.dll
+C:\Users\Tony\Documents\Projects\VisualStudio\DEACT\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.deps.json
+C:\Users\Tony\Documents\Projects\VisualStudio\DEACT\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.runtimeconfig.json
+C:\Users\Tony\Documents\Projects\VisualStudio\DEACT\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.pdb

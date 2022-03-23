@@ -21,7 +21,7 @@ namespace TTSDeckEditAndCreationTool.Model
 
         List<string> PrintURLs { get; set; }
 
-        public DeckCard(string nickname, int cardid, string faceurl, char zone = 'L', int count = 1, bool isBack = false)
+        public DeckCard(string nickname, int cardid, string faceurl, bool isBack = false, char zone = 'L', int count = 1)
         {
             Nickname = nickname;
             CardID = cardid;
@@ -35,5 +35,6 @@ namespace TTSDeckEditAndCreationTool.Model
         {
             PrintURLs = printurls;
         }
+
     }
 }

@@ -160,12 +160,12 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 //this means its the BACK of the card
                 foreach (JsonProperty jproperty in cardstates.EnumerateObject())
                 {
-                    ParseJElementCardFace(jproperty.Value);
+                    ParseJElementCardFace(jproperty.Value, true);
                 }
             }
         }
 
-        private void ParseJElementCardFace(JsonElement jle)
+        private void ParseJElementCardFace(JsonElement jle, bool isBack = false)
         {
             JsonElement nickname, customdeck, faceurl = new JsonElement(), cardid;
 
@@ -203,7 +203,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 {
                     CardArt.Add(nick, face);
                 }
-                CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face));
+                CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, isBack));
                 temp.Card.Cardname = nick.Split('\n')[0];
                 if (!CardLookup.ContainsKey(nick)) CardLookup.Add(nick, temp.Card);
                 DeckCards.Add(temp);

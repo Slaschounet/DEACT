@@ -14,7 +14,7 @@
     <PackageIcon>Deact2.png</PackageIcon>
     <AssemblyVersion>1.0.3.3</AssemblyVersion>
     <FileVersion>1.0.3.3</FileVersion>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>DEACT_Key.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 

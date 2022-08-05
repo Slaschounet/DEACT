@@ -43,5 +43,27 @@
             <TextBox Background="Transparent" Height="20" Width="200" Margin="10,0" Foreground="White" FontFamily="{StaticResource LightFont}" Text="{Binding CustomURL}" VerticalContentAlignment="Center"/>
             <Button Style="{StaticResource FlatButtonStyle}" Background="{StaticResource Good}" Width="50" Command="{Binding ChoseCustom}" CommandParameter="Custom">Add</Button>
         </StackPanel>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10,0">
+            <ComboBox Height="20" Width="100" Margin="10,0" Foreground="Black" Background="{StaticResource MainLight}" HorizontalContentAlignment="Center" Padding="0,0,0,0" HorizontalAlignment="Right" SelectedValue="{Binding SelectedLanguage, FallbackValue=English}" SelectedValuePath="Content">
+                <ComboBoxItem>Any</ComboBoxItem>
+                <ComboBoxItem>English</ComboBoxItem>
+                <ComboBoxItem>Japanese</ComboBoxItem>
+                <ComboBoxItem>Spanish</ComboBoxItem>
+                <ComboBoxItem>Portuguese</ComboBoxItem>
+                <ComboBoxItem>Korean</ComboBoxItem>
+                <ComboBoxItem>German</ComboBoxItem>
+                <ComboBoxItem>French</ComboBoxItem>
+                <ComboBoxItem>Italian</ComboBoxItem>
+                <ComboBoxItem>Russian</ComboBoxItem>
+                <ComboBoxItem>Simplified Chinese</ComboBoxItem>
+                <ComboBoxItem>Traditional Chinese</ComboBoxItem>
+                <ComboBoxItem>Hebrew</ComboBoxItem>
+                <ComboBoxItem>Latin</ComboBoxItem>
+                <ComboBoxItem>Ancient Greek</ComboBoxItem>
+                <ComboBoxItem>Arabic</ComboBoxItem>
+                <ComboBoxItem>Sanskrit</ComboBoxItem>
+                <ComboBoxItem>Phyrexian</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
     </Grid>
 </Window>

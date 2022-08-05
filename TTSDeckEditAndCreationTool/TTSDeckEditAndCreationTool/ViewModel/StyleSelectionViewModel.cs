@@ -25,6 +25,28 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private CardStyles _styles;
 
+        private Dictionary<string, string> LanguageConverter = new Dictionary<string, string> 
+        { 
+            {"English", "en"},
+            {"Any", "Any"},
+            {"Japanese", "ja"},
+            {"Spanish", "fr"},
+            {"Portuguese", "pt"},
+            {"Korean", "ko"},
+            {"German", "de"},
+            {"French", "en"},
+            {"Italian", "it"},
+            {"Russian", "ru"},
+            {"Simplified Chinese", "zhs"},
+            {"Traditional Chinese", "zht"},
+            {"Hebrew", "he"},
+            {"Latin", "la"},
+            {"Ancient Greek", "grc"},
+            {"Arabic", "ar"},
+            {"Sanskrit", "sa"},
+            {"Phyrexian", "ph"}
+        };
+
         public CardStyles Styles
         {
             get
@@ -60,12 +82,33 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public string CustomURL { get; set; }
         public ICommand ChoseCustom { get; set; }
 
+        public ICommand SelectLanguage { get; set; }
+
+        private string _selectedLanguage { get; set; }
+        public string SelectedLanguage
+        {
+            get
+            {
+                if (_selectedLanguage == null)
+                {
+                    _selectedLanguage = "English";
+                }
+                return _selectedLanguage;
+            }
+            set
+            {
+                _selectedLanguage = value;
+                if (!string.IsNullOrEmpty(_selectedLanguage)) RefreshSelections();
+            }
+        }
+
         public StyleSelectionViewModel(DeckCard card, CardBuilderViewModel cbvm)
         {
             Card = card;
             CardBuilderVM = cbvm;
             CustomCardTempalte = new CardStyleViewModel(new CardStyleInfo("Custom", ""), this);
             ChoseCustom = new StyleSelectedCommand(this);
+            SelectLanguage = new SelectLanguageCommand(this);
         }
 
         public void StyleSelected(string styleURL)
@@ -73,6 +116,14 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             if (styleURL == "Custom") styleURL = CustomURL;
             StyleWindow.Close();
             CardBuilderVM.UpdateCardFaceURL(styleURL);
+        }
+
+        public void RefreshSelections()
+        {
+            Prints = new List<CardStyleViewModel>();
+            Styles.Prints = new List<CardStyleInfo>();
+            OnPropertyChanged(nameof(Prints));
+            LoadOrFetch();
         }
 
         private void SetPrintsFromStyles()
@@ -107,15 +158,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         {
             //Check if card art exists in stor, otherwise fetch and add to stor
 
-            if(CardStyleCache.CardList.ContainsKey(Card.Cardname) && CardStyleCache.CardList[Card.Cardname].LastFetched > DateTime.UtcNow.AddDays(-2))
+            if(false && CardStyleCache.CardList.ContainsKey(Card.Cardname) && CardStyleCache.CardList[Card.Cardname].LastFetched > DateTime.UtcNow.AddDays(-2))
             {
                 Styles = CardStyleCache.CardList[Card.Cardname];
             }
             else
             {
-                if (CardStyleCache.CardList.ContainsKey(Card.Cardname)) CardStyleCache.CardList.Remove(Card.Cardname);
+                //if (CardStyleCache.CardList.ContainsKey(Card.Cardname)) CardStyleCache.CardList.Remove(Card.Cardname);
                 string URLname = Card.Cardname.Replace(' ', '_');
-                string baseUrl = "https://api.scryfall.com/cards/search?q=!" + URLname + "&unique=prints";
+                string baseUrl = "https://api.scryfall.com/cards/search?q=!" + URLname + " lang:"+ LanguageConverter[SelectedLanguage] + "&unique=prints";
                 //if not in stor
                 FetchAndAdd(baseUrl);
             }
@@ -192,8 +243,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 if (Styles.Prints.Count > 0)
                 {
                     Styles.LastFetched = DateTime.UtcNow;
-                    CardStyleCache.CardList.Add(Card.Cardname, Styles);
-                    CardStyleCache.SaveList();
+                    //CardStyleCache.CardList.Add(Card.Cardname, Styles);
+                    //CardStyleCache.SaveList();
                 }
 
                 SetPrintsFromStyles();

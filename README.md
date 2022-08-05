@@ -1,6 +1,11 @@
 # DEACT
 Tool for editing and adding decks used in Tabletop Simulator
 
+# Version 0.3.5
+When chosing a card style there is now a language dropdown in the bottom right. *note if the card has no results from the selected language you will get an error popup. Future todo would be to handle that more gracefully.
+
+BIG NOTE: Card style caching was removed with this change in favor of time. I will add it back some day but its really not needed the time save is pretty minimal since its just caching the URL's.
+
 # Added Open Source
 Added the full project source. Feel free to grab it and look it over or modify as you see fit.
 The project is .net with wpf, you will most likely want to just use visual studio and open the .sln

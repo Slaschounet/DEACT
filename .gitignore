@@ -1,4 +1,32 @@
+# Ignore Visual Studio temporary files, build results, and OS generated files
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+# VS directories
+.vs/
+.vscode/
+
+# OS files
+Thumbs.db
+*.DS_Store
+
+# NuGet packages
+*.nupkg
+
+# Logs
+*.log
+
+# Existing project specific paths
 TTSDeckEditAndCreationTool/TTSDeckEditAndCreationTool/bin/
 TTSDeckEditAndCreationTool/TTSDeckEditAndCreationTool/obj/Debug/
-
 TTSDeckEditAndCreationTool/.vs/TTSDeckEditAndCreationTool/DesignTimeBuild/.dtbcache.v2

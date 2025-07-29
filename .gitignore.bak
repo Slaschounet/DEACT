@@ -30,22 +30,3 @@ Thumbs.db
 TTSDeckEditAndCreationTool/TTSDeckEditAndCreationTool/bin/
 TTSDeckEditAndCreationTool/TTSDeckEditAndCreationTool/obj/Debug/
 TTSDeckEditAndCreationTool/.vs/TTSDeckEditAndCreationTool/DesignTimeBuild/.dtbcache.v2
-
-# Fichiers de build
-bin/
-obj/
-
-# Fichiers générés par WPF/XAML
-*.g.cs
-*.g.i.cs
-*.baml
-
-# Fichiers temporaires
-*.user
-*.suo
-*.cache
-*.pdb
-*.dll
-
-# VS config
-.vs/

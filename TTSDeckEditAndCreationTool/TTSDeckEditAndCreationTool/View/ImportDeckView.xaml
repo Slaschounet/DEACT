@@ -21,7 +21,7 @@
         <TextBox Grid.Column="1" Height="20" Margin="10,0" Background="Transparent" Foreground="White" Text="{Binding DeckFilePath}" FontFamily="{StaticResource CoreFont}" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
         <Button Grid.Column="2" Margin="5" Height="25" Style="{DynamicResource FlatButtonStyle}" Command="{Binding BrowseFileCommand}" Background="{StaticResource Good}">Browse</Button>
 
-        <ComboBox Grid.Column="1" Grid.Row="1" Width="120" Margin="0,0,100,0" HorizontalAlignment="Left" Foreground="Black" Background="{StaticResource MainLight}" SelectedValuePath="Content" SelectedValue="{Binding SelectedLanguage, FallbackValue=French}">
+        <ComboBox Grid.Column="1" Grid.Row="1" Width="120" Height="30" Margin="0,0,100,0" HorizontalAlignment="Left" Foreground="Black" Background="{StaticResource MainLight}" SelectedValuePath="Content" SelectedValue="{Binding SelectedLanguage, FallbackValue=French}">
             <ComboBoxItem>French</ComboBoxItem>
             <ComboBoxItem>English</ComboBoxItem>
             <ComboBoxItem>Japanese</ComboBoxItem>
@@ -34,6 +34,6 @@
             <ComboBoxItem>Simplified Chinese</ComboBoxItem>
             <ComboBoxItem>Traditional Chinese</ComboBoxItem>
         </ComboBox>
-        <Button Grid.Column="1" Grid.Row="1" Height="30" Margin="150,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource FlatButtonStyle}" Background="{StaticResource Good}" Command="{Binding ImportSelectedPathCommand}">Import</Button>
+        <Button Grid.Column="1" Grid.Row="1" Width="120" Height="30" Margin="150,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource FlatButtonStyle}" Background="{StaticResource Good}" Command="{Binding ImportSelectedPathCommand}">Import</Button>
     </Grid>
 </UserControl>

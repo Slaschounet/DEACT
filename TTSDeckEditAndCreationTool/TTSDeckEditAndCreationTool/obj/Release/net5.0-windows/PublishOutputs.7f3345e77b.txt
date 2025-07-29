@@ -1,5 +1,0 @@
-C:\Users\tonyr\source\repos\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.exe
-C:\Users\tonyr\source\repos\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.dll
-C:\Users\tonyr\source\repos\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.deps.json
-C:\Users\tonyr\source\repos\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.runtimeconfig.json
-C:\Users\tonyr\source\repos\TTSDeckEditAndCreationTool\TTSDeckEditAndCreationTool\bin\Release\net5.0-windows\publish\TTSDeckEditAndCreationTool.pdb

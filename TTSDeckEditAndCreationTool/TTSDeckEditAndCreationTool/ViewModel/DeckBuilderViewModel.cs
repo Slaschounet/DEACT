@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Net.Http;
 using TTSDeckEditAndCreationTool.Model;
 using TTSDeckEditAndCreationTool.Store;
 using TTSDeckEditAndCreationTool.Commands;
@@ -17,6 +18,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
     public class DeckBuilderViewModel : ViewModelBase
     {
         private List<CardBuilderViewModel> _deckCards { get; set; }
+
+        private static readonly HttpClient httpClient = new HttpClient();
 
         public List<CardBuilderViewModel> DeckCards
         {
@@ -201,6 +204,11 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 }
                 else
                 {
+                    string altFace = FetchPreferredImage(nick.Split('\n')[0], isBack);
+                    if (!string.IsNullOrWhiteSpace(altFace))
+                    {
+                        face = altFace;
+                    }
                     CardArt.Add(nick, face);
                 }
                 CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, isBack));
@@ -231,6 +239,58 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
             File.WriteAllText(_deckPath, _deckJson);
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
+        }
+
+        private string FetchPreferredImage(string cardName, bool isBack)
+        {
+            string[] languages = new[] { "fr", "en" };
+
+            foreach (string lang in languages)
+            {
+                try
+                {
+                    string urlName = cardName.Replace(' ', '_');
+                    string baseUrl = "https://api.scryfall.com/cards/search?q=!" + urlName + " lang:" + lang + "&unique=prints";
+
+                    HttpResponseMessage res = httpClient.GetAsync(baseUrl).Result;
+                    if (res.IsSuccessStatusCode)
+                    {
+                        string data = res.Content.ReadAsStringAsync().Result;
+                        JsonElement root = JsonSerializer.Deserialize<JsonElement>(data);
+                        if (root.TryGetProperty("data", out JsonElement cardInfos))
+                        {
+                            foreach (JsonElement cardInfo in cardInfos.EnumerateArray())
+                            {
+                                JsonElement cardImages, cardImage, cardFaces;
+
+                                if (cardInfo.TryGetProperty("image_uris", out cardImages))
+                                {
+                                    if (!cardImages.TryGetProperty("normal", out cardImage))
+                                    {
+                                        cardImages.TryGetProperty("small", out cardImage);
+                                    }
+                                }
+                                else if (cardInfo.TryGetProperty("card_faces", out cardFaces))
+                                {
+                                    cardFaces[isBack ? 1 : 0].TryGetProperty("image_uris", out cardImages);
+                                    cardImages.TryGetProperty("normal", out cardImage);
+                                }
+                                else
+                                {
+                                    continue;
+                                }
+
+                                return cardImage.GetString();
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return null;
         }
     }
 }

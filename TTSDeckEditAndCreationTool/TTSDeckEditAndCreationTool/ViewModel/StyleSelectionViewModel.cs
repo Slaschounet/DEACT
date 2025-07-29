@@ -181,6 +181,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             {
                 using (HttpClient client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("User-Agent", "MyApp/1.0 (contact@example.com)");
+                    client.DefaultRequestHeaders.Add("Accept", "application/json");
                     using (HttpResponseMessage res = await client.GetAsync(baseUrl))
                     {
                         using (HttpContent content = res.Content)

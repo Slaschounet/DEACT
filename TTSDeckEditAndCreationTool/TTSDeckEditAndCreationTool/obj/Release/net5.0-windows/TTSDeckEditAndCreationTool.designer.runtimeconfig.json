@@ -6,8 +6,8 @@
       "version": "5.0.0"
     },
     "additionalProbingPaths": [
-      "C:\\Users\\Tony\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\Tony\\.nuget\\packages"
+      "C:\\Users\\Guillou\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Guillou\\.nuget\\packages"
     ],
     "configProperties": {
       "System.Reflection.Metadata.MetadataUpdater.IsSupported": false,

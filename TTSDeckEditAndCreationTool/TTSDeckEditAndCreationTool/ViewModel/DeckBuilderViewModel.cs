@@ -42,6 +42,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private string _cardBackURL { get; set; }
 
+        public string PreferredLanguage { get; set; } = "fr";
+
         public string CardBackURL
         {
             get
@@ -243,7 +245,12 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private string FetchPreferredImage(string cardName, bool isBack)
         {
-            string[] languages = new[] { "fr", "en" };
+            List<string> languages = new List<string>();
+            if (!string.IsNullOrWhiteSpace(PreferredLanguage))
+            {
+                languages.Add(PreferredLanguage);
+            }
+            if (PreferredLanguage != "en") languages.Add("en");
 
             foreach (string lang in languages)
             {

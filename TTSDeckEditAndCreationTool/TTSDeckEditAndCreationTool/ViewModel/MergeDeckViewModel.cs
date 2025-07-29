@@ -41,6 +41,33 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private DeckBuilderViewModel _deckBuilderViewModel { get; set; }
 
+        private Dictionary<string, string> LanguageConverter = new Dictionary<string, string>
+        {
+            {"French", "fr"},
+            {"English", "en"},
+            {"Japanese", "ja"},
+            {"Spanish", "es"},
+            {"Portuguese", "pt"},
+            {"Korean", "ko"},
+            {"German", "de"},
+            {"Italian", "it"},
+            {"Russian", "ru"},
+            {"Simplified Chinese", "zhs"},
+            {"Traditional Chinese", "zht"}
+        };
+
+        public IEnumerable<string> Languages
+        {
+            get { return LanguageConverter.Keys; }
+        }
+
+        private string _selectedLanguage;
+        public string SelectedLanguage
+        {
+            get { return string.IsNullOrEmpty(_selectedLanguage) ? "French" : _selectedLanguage; }
+            set { _selectedLanguage = value; }
+        }
+
         public ICommand NewBrowseFileCommand { get; }
         public ICommand OldBrowseFileCommand { get; }
         public ICommand ImportSelectedPathCommand { get; }
@@ -89,6 +116,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public void ConvertPathToDeckAndNavigate()
         {
             deckInfo.DeckPath = NewDeckFilePath;
+
+            if (LanguageConverter.ContainsKey(SelectedLanguage))
+            {
+                _deckBuilderViewModel.PreferredLanguage = LanguageConverter[SelectedLanguage];
+            }
+            else
+            {
+                _deckBuilderViewModel.PreferredLanguage = "fr";
+            }
 
             NavigateToDeckViewCommand.Execute(null);
 

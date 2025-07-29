@@ -33,6 +33,39 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private DeckBuilderViewModel _deckBuilderViewModel { get; set; }
 
+        private Dictionary<string, string> LanguageConverter = new Dictionary<string, string>
+        {
+            {"French", "fr"},
+            {"English", "en"},
+            {"Japanese", "ja"},
+            {"Spanish", "es"},
+            {"Portuguese", "pt"},
+            {"Korean", "ko"},
+            {"German", "de"},
+            {"Italian", "it"},
+            {"Russian", "ru"},
+            {"Simplified Chinese", "zhs"},
+            {"Traditional Chinese", "zht"}
+        };
+
+        public IEnumerable<string> Languages
+        {
+            get { return LanguageConverter.Keys; }
+        }
+
+        private string _selectedLanguage;
+        public string SelectedLanguage
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_selectedLanguage) ? "French" : _selectedLanguage;
+            }
+            set
+            {
+                _selectedLanguage = value;
+            }
+        }
+
         public ICommand BrowseFileCommand { get; } //Command to Open File Browser and Populate DeckFilePath textbox on selection
         public ICommand ImportSelectedPathCommand { get; } //Command to execute the import operation. Hands off the new DeckInfoStore to the DeckBuilderVM to begin the import process.
         public ICommand NavigateToDeckViewCommand { get; set; } //Standard Navigation Command to move to the Deck Builder
@@ -79,6 +112,14 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public void ConvertPathToDeckAndNavigate()
         {
             deckInfo.DeckPath = DeckFilePath;
+            if(LanguageConverter.ContainsKey(SelectedLanguage))
+            {
+                _deckBuilderViewModel.PreferredLanguage = LanguageConverter[SelectedLanguage];
+            }
+            else
+            {
+                _deckBuilderViewModel.PreferredLanguage = "fr";
+            }
 
             NavigateToDeckViewCommand.Execute(null);
 

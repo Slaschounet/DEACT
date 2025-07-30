@@ -113,7 +113,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             }
         }
 
-        public void ConvertPathToDeckAndNavigate()
+        public async Task ConvertPathToDeckAndNavigate()
         {
             deckInfo.DeckPath = NewDeckFilePath;
 
@@ -128,7 +128,10 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
             NavigateToDeckViewCommand.Execute(null);
 
-            _deckBuilderViewModel?.MergeFromPaths(NewDeckFilePath, OldDeckFilePath);
+            if (_deckBuilderViewModel != null)
+            {
+                await _deckBuilderViewModel.MergeFromPaths(NewDeckFilePath, OldDeckFilePath);
+            }
         }
     }
 }

@@ -84,13 +84,13 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             SaveDeckCommand = new BuilderSaveDeckCommand(this);
         }
 
-        public void MergeFromPaths(string pathNew, string pathOld)
+        public async Task MergeFromPaths(string pathNew, string pathOld)
         {
             //By running the old first we setup the card lookup which we will then use to change the art when a card with the same name is loaded in with different face url
-            LoadFromPath(pathOld);
+            await LoadFromPath(pathOld);
             DeckCards = new List<CardBuilderViewModel>();
             CardLookup = new Dictionary<string, DeckCard>();
-            LoadFromPath(pathNew);
+            await LoadFromPath(pathNew);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         /// TODO: Ideally this whole operation should be refactored and we should either clean up the redundant and verbous operations or create models to better import and handle the data.
         /// </summary>
         /// <param name="path"></param>
-        public void LoadFromPath(string path)
+        public async Task LoadFromPath(string path)
         {
             _deckPath = path;
 
@@ -149,12 +149,12 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                     {
                         foreach (JsonElement jelement in containedobjects.EnumerateArray())
                         {
-                            ParseJElementCard(jelement);
+                            await ParseJElementCard(jelement);
                         }
                     }
                     else
                     {
-                        ParseJElementCard(cObj);
+                        await ParseJElementCard(cObj);
                     }
                 }
             }
@@ -169,25 +169,25 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             OnPropertyChanged(nameof(CardBackURL));
         }
 
-        private void ParseJElementCard(JsonElement jle)
+        private async Task ParseJElementCard(JsonElement jle)
         {
             JsonElement cardstates;
 
             bool hasStates = jle.TryGetProperty("States", out cardstates); //check if the card has states. (relevant for cards with content on the back face)
 
-            ParseJElementCardFace(jle);
+            await ParseJElementCardFace(jle);
 
             if (hasStates)
             {
                 //this means its the BACK of the card
                 foreach (JsonProperty jproperty in cardstates.EnumerateObject())
                 {
-                    ParseJElementCardFace(jproperty.Value, true);
+                    await ParseJElementCardFace(jproperty.Value, true);
                 }
             }
         }
 
-        private void ParseJElementCardFace(JsonElement jle, bool isBack = false)
+        private async Task ParseJElementCardFace(JsonElement jle, bool isBack = false)
         {
             JsonElement nickname, customdeck, faceurl = new JsonElement(), cardid;
 
@@ -223,7 +223,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 }
                 else
                 {
-                    string altFace = FetchPreferredImage(nick.Split('\n')[0], isBack, out string usedLang);
+                    string altFace = await FetchPreferredImage(nick.Split("\n")[0], isBack, out string usedLang);
                     if (!string.IsNullOrWhiteSpace(altFace))
                     {
                         face = altFace;
@@ -267,7 +267,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
         }
 
-        private string FetchPreferredImage(string cardName, bool isBack, out string usedLang)
+        private async Task<string> FetchPreferredImage(string cardName, bool isBack, out string usedLang)
         {
             usedLang = null;
             List<string> languages = new List<string>();
@@ -284,10 +284,10 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                     string urlName = cardName.Replace(' ', '_');
                     string baseUrl = "https://api.scryfall.com/cards/search?q=!" + urlName + " lang:" + lang + "&unique=prints";
 
-                    HttpResponseMessage res = httpClient.GetAsync(baseUrl).Result;
+                    HttpResponseMessage res = await httpClient.GetAsync(baseUrl);
                     if (res.IsSuccessStatusCode)
                     {
-                        string data = res.Content.ReadAsStringAsync().Result;
+                        string data = await res.Content.ReadAsStringAsync();
                         JsonElement root = JsonSerializer.Deserialize<JsonElement>(data);
                         if (root.TryGetProperty("data", out JsonElement cardInfos))
                         {

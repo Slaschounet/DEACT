@@ -223,7 +223,9 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 }
                 else
                 {
-                    string altFace = await FetchPreferredImage(nick.Split("\n")[0], isBack, out string usedLang);
+                    var result = await FetchPreferredImage(nick.Split("\n")[0], isBack);
+                    string altFace = result?.Url;
+                    string usedLang = result?.Language;
                     if (!string.IsNullOrWhiteSpace(altFace))
                     {
                         face = altFace;
@@ -267,9 +269,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
         }
 
-        private async Task<string> FetchPreferredImage(string cardName, bool isBack, out string usedLang)
+        private async Task<FetchedImageResult> FetchPreferredImage(string cardName, bool isBack)
         {
-            usedLang = null;
             List<string> languages = new List<string>();
             if (!string.IsNullOrWhiteSpace(PreferredLanguage))
             {
@@ -312,8 +313,11 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                                     continue;
                                 }
 
-                                usedLang = lang;
-                                return cardImage.GetString();
+                                return new FetchedImageResult
+                                {
+                                    Url = cardImage.GetString(),
+                                    Language = lang
+                                };
                             }
                         }
                     }
@@ -326,4 +330,10 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             return null;
         }
     }
+}
+
+public class FetchedImageResult
+{
+    public string Url { get; set; }
+    public string Language { get; set; }
 }

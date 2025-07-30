@@ -19,6 +19,7 @@
             <Label Style="{DynamicResource BoldLabel}" VerticalAlignment="Center">Card Back URL:</Label>
             <TextBox Background="Transparent" Foreground="White" Text="{Binding CardBackURL}" Margin="10" Width="200" VerticalContentAlignment="Center"/>
             <Image Source="{Binding DisplayCardBackURL}" Margin="5"/>
+            <Label Grid.Row="2" Foreground="White" VerticalAlignment="Center" FontFamily="{StaticResource LightFont}" Margin="5" Content="{Binding ImportSummary}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" Background="Transparent" VerticalScrollBarVisibility="Auto">
@@ -36,7 +37,6 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Rectangle Grid.Row="2" Fill="{StaticResource MainLight}"/>
-        <Label Grid.Row="2" Foreground="White" VerticalAlignment="Center" FontFamily="{StaticResource LightFont}" Margin="5" Content="{Binding ImportSummary}"/>
+        <Rectangle Grid.Row="2" Fill="{StaticResource MainLight}"
     </Grid>
 </UserControl>

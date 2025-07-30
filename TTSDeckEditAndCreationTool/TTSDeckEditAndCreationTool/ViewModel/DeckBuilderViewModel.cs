@@ -13,6 +13,7 @@ using TTSDeckEditAndCreationTool.Model;
 using TTSDeckEditAndCreationTool.Store;
 using TTSDeckEditAndCreationTool.Commands;
 using TTSDeckEditAndCreationTool.View;
+using System.Text.RegularExpressions;
 
 namespace TTSDeckEditAndCreationTool.ViewModel
 {
@@ -270,11 +271,22 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 _deckJson = _deckJson.Replace("BackURL\": \"" + _oldCardBackURL, "BackURL\": \"" + CardBackURL);
             }
 
-            //replace small image url's with normal size
-            _deckJson = _deckJson.Replace("/small/", "/normal/");
+            //ensure all card images use the highest resolution available
+            _deckJson = UpgradeImageUrlsToPng(_deckJson);
+            //_deckJson = _deckJson.Replace("/small/", "/normal/");
 
             File.WriteAllText(_deckPath, _deckJson);
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
+        }
+
+        private static string UpgradeImageUrlsToPng(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return json;
+
+            json = Regex.Replace(json, "/(small|normal|large)/", "/png/");
+            json = Regex.Replace(json, "\\.jpg", ".png");
+
+            return json;
         }
 
         private async Task<FetchedImageResult> FetchPreferredImage(string cardName, bool isBack)

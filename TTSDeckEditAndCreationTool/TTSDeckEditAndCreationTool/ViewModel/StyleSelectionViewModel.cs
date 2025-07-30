@@ -248,8 +248,11 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                                     }
 
                                     string remoteUrl = cardImage.GetString();
-                                    string localPath = CardStyleCache.DownloadImageIfNeeded(remoteUrl);
-                                    CardStyleInfo newCardStyleInfo = new CardStyleInfo(setAbrrev.GetString(), localPath, releaseDate);
+                                    // Download image for local caching but keep the
+                                    // remote URL so the saved deck references the
+                                    // online resource instead of a local path.
+                                    CardStyleCache.DownloadImageIfNeeded(remoteUrl);
+                                    CardStyleInfo newCardStyleInfo = new CardStyleInfo(setAbrrev.GetString(), remoteUrl, releaseDate);
                                     Styles.Prints.Add(newCardStyleInfo);
                                 }
                             }

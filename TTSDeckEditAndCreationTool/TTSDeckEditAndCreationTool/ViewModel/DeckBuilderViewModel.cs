@@ -87,6 +87,16 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         private string _deckPath { get; set; }
         private string _deckJson { get; set; }
         private string _oldCardBackURL { get; set; }
+        private bool _isUpdated;
+        public bool IsUpdated
+        {
+            get => _isUpdated;
+            set
+            {
+                _isUpdated = value;
+                OnPropertyChanged();
+            }
+        }
 
         public DeckBuilderViewModel()
         {
@@ -139,6 +149,24 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 return;
             }
 
+            try
+            {
+                using JsonDocument doc = JsonDocument.Parse(_deckJson);
+                if (doc.RootElement.TryGetProperty("isUpdated", out JsonElement upd))
+                {
+                    IsUpdated = upd.GetBoolean();
+                }
+                else
+                {
+                    IsUpdated = false;
+                }
+                OnPropertyChanged(nameof(IsUpdated));
+            }
+            catch
+            {
+                IsUpdated = false;
+                OnPropertyChanged(nameof(IsUpdated));
+            }
 
             //PART 2 : PARSE OUT CARDS
             //TODO: Right now this is pretty brute force on navigating the JSON. Ideally I would like to have a replica model of TTS objects so that not only is this cleaner but we can then move into deck creation and management as well.
@@ -225,30 +253,47 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             else
             {
                 string nick = nickname.GetString();
-                string face = faceurl.GetString();
+                string originalFace = faceurl.GetString();
+                string face = originalFace;
                 if (CardArt.ContainsKey(nick))
                 {
                     face = CardArt[nick];
                 }
                 else
                 {
-                    var result = await FetchPreferredImage(nick.Split("\n")[0], isBack);
-                    string altFace = result?.Url;
-                    string usedLang = result?.Language;
-                    if (!string.IsNullOrWhiteSpace(altFace))
+                    if (!IsUpdated && string.IsNullOrWhiteSpace(face))
                     {
-                        face = altFace;
-                        if (usedLang == PreferredLanguage) _preferredLanguageCount++;
-                        else if (usedLang == "en") _defaultLanguageCount++;
+                        var result = await FetchPreferredImage(nick.Split("\n")[0], isBack);
+                        string altFace = result?.Url;
+                        string usedLang = result?.Language;
+                        if (!string.IsNullOrWhiteSpace(altFace))
+                        {
+                            face = altFace;
+                            if (usedLang == PreferredLanguage) _preferredLanguageCount++;
+                            else if (usedLang == "en") _defaultLanguageCount++;
+
+                            if (_deckJson != null)
+                            {
+                                if (!string.IsNullOrWhiteSpace(originalFace))
+                                {
+                                    _deckJson = _deckJson.Replace(originalFace, face);
+                                }
+                                else
+                                {
+                                    _deckJson = _deckJson.Replace("\"FaceURL\": \"\"", "\"FaceURL\": \"" + face + "\"");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _errorCount++;
+                        }
+                        OnPropertyChanged(nameof(ImportSummary));
                     }
-                    else
-                    {
-                        _errorCount++;
-                    }
-                    OnPropertyChanged(nameof(ImportSummary));
                     CardArt.Add(nick, face);
                 }
                 CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, isBack));
+                temp.Card.OldFaceURL = originalFace;
                 temp.Card.Cardname = nick.Split('\n')[0];
                 if (!CardLookup.ContainsKey(nick)) CardLookup.Add(nick, temp.Card);
                 DeckCards.Add(temp);
@@ -257,25 +302,45 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         public void SaveDeckToPath()
         {
-            foreach(CardBuilderViewModel cardvm in DeckCards)
+            System.Diagnostics.Debug.WriteLine("====== SAVE START ======");
+
+            foreach (CardBuilderViewModel cardvm in DeckCards)
             {
                 DeckCard card = cardvm.Card;
-                if(card.FaceURL != card.OldFaceURL)
+
+                System.Diagnostics.Debug.WriteLine($"Card: {card.Cardname}");
+                System.Diagnostics.Debug.WriteLine($"Old URL: {card.OldFaceURL}");
+                System.Diagnostics.Debug.WriteLine($"New URL: {card.FaceURL}");
+                System.Diagnostics.Debug.WriteLine($"Deck JSON contains old? {_deckJson.Contains(card.OldFaceURL)}");
+
+                if (card.FaceURL != card.OldFaceURL)
                 {
-                    _deckJson = _deckJson.Replace(card.OldFaceURL, card.FaceURL);
+                    if (!string.IsNullOrWhiteSpace(card.OldFaceURL))
+                    {
+                        _deckJson = _deckJson.Replace(card.OldFaceURL, card.FaceURL);
+                    }
+                    else
+                    {
+                        _deckJson = _deckJson.Replace("\"FaceURL\": \"\"", "\"FaceURL\": \"" + card.FaceURL + "\"");
+                    }
+                    System.Diagnostics.Debug.WriteLine("-> Replaced URL in JSON");
                 }
             }
 
-            if(_oldCardBackURL != CardBackURL && !string.IsNullOrWhiteSpace(CardBackURL))
+            if (_oldCardBackURL != CardBackURL && !string.IsNullOrWhiteSpace(CardBackURL))
             {
+                System.Diagnostics.Debug.WriteLine($"Old Back URL: {_oldCardBackURL}");
+                System.Diagnostics.Debug.WriteLine($"New Back URL: {CardBackURL}");
                 _deckJson = _deckJson.Replace("BackURL\": \"" + _oldCardBackURL, "BackURL\": \"" + CardBackURL);
             }
 
-            //ensure all card images use the highest resolution available
+            // Upgrade URLs to png
             _deckJson = UpgradeImageUrlsToPng(_deckJson);
-            //_deckJson = _deckJson.Replace("/small/", "/normal/");
 
+            // Write the file
             File.WriteAllText(_deckPath, _deckJson);
+            System.Diagnostics.Debug.WriteLine("====== SAVE COMPLETE ======");
+
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
         }
 

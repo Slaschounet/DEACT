@@ -91,7 +91,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             {
                 if (_selectedLanguage == null)
                 {
-                    _selectedLanguage = "English";
+                    _selectedLanguage = "French";
                 }
                 return _selectedLanguage;
             }
@@ -146,7 +146,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public void OpenWindow()
         {
             //Load or fetch style data
-            LoadOrFetch();
+            RefreshSelections();
 
             //Open view window
             StyleWindow = new StyleSelectionView();

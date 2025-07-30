@@ -44,6 +44,18 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         public string PreferredLanguage { get; set; } = "fr";
 
+        private int _preferredLanguageCount;
+        private int _defaultLanguageCount;
+        private int _errorCount;
+
+        public string ImportSummary
+        {
+            get
+            {
+                return $"{_preferredLanguageCount} {PreferredLanguage} cards, {_defaultLanguageCount} en, {_errorCount} errors";
+            }
+        }
+
         public string CardBackURL
         {
             get
@@ -90,6 +102,11 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public void LoadFromPath(string path)
         {
             _deckPath = path;
+
+            _preferredLanguageCount = 0;
+            _defaultLanguageCount = 0;
+            _errorCount = 0;
+            OnPropertyChanged(nameof(ImportSummary));
 
             //PART 1 : LOAD IN JSON
             try
@@ -206,11 +223,18 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 }
                 else
                 {
-                    string altFace = FetchPreferredImage(nick.Split('\n')[0], isBack);
+                    string altFace = FetchPreferredImage(nick.Split('\n')[0], isBack, out string usedLang);
                     if (!string.IsNullOrWhiteSpace(altFace))
                     {
                         face = altFace;
+                        if (usedLang == PreferredLanguage) _preferredLanguageCount++;
+                        else if (usedLang == "en") _defaultLanguageCount++;
                     }
+                    else
+                    {
+                        _errorCount++;
+                    }
+                    OnPropertyChanged(nameof(ImportSummary));
                     CardArt.Add(nick, face);
                 }
                 CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, isBack));
@@ -243,8 +267,9 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
         }
 
-        private string FetchPreferredImage(string cardName, bool isBack)
+        private string FetchPreferredImage(string cardName, bool isBack, out string usedLang)
         {
+            usedLang = null;
             List<string> languages = new List<string>();
             if (!string.IsNullOrWhiteSpace(PreferredLanguage))
             {
@@ -287,6 +312,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                                     continue;
                                 }
 
+                                usedLang = lang;
                                 return cardImage.GetString();
                             }
                         }

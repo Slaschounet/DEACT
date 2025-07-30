@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.IO;
 using System.Linq;
@@ -17,17 +18,17 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 {
     public class DeckBuilderViewModel : ViewModelBase
     {
-        private List<CardBuilderViewModel> _deckCards { get; set; }
+        private ObservableCollection<CardBuilderViewModel> _deckCards { get; set; }
 
         private static readonly HttpClient httpClient = new HttpClient();
 
-        public List<CardBuilderViewModel> DeckCards
+        public ObservableCollection<CardBuilderViewModel> DeckCards
         {
             get
             {
-                if(_deckCards == null)
+                if (_deckCards == null)
                 {
-                    return _deckCards = new List<CardBuilderViewModel>();
+                    return _deckCards = new ObservableCollection<CardBuilderViewModel>();
                 }
                 else
                 {
@@ -37,6 +38,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             set
             {
                 _deckCards = value;
+                OnPropertyChanged();
             }
         }
 
@@ -88,7 +90,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         {
             //By running the old first we setup the card lookup which we will then use to change the art when a card with the same name is loaded in with different face url
             await LoadFromPath(pathOld);
-            DeckCards = new List<CardBuilderViewModel>();
+            DeckCards = new ObservableCollection<CardBuilderViewModel>();
             CardLookup = new Dictionary<string, DeckCard>();
             await LoadFromPath(pathNew);
         }

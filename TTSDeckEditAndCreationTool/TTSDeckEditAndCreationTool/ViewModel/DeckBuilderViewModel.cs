@@ -83,6 +83,14 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         private Dictionary<string, string> CardArt = new Dictionary<string, string>(); //for merging decklists
 
         public ICommand SaveDeckCommand { get; }
+        public ICommand ApplySetStylesCommand { get; }
+
+        private string _setAbbreviations;
+        public string SetAbbreviations
+        {
+            get { return _setAbbreviations; }
+            set { _setAbbreviations = value; OnPropertyChanged(); }
+        }
 
         private string _deckPath { get; set; }
         private string _deckJson { get; set; }
@@ -91,6 +99,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public DeckBuilderViewModel()
         {
             SaveDeckCommand = new BuilderSaveDeckCommand(this);
+            ApplySetStylesCommand = new ApplySetStylesCommand(this);
         }
 
         public async Task MergeFromPaths(string pathNew, string pathOld)
@@ -345,6 +354,75 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 catch
                 {
                 }
+            }
+
+            return null;
+        }
+
+        public async Task ApplySetStyles()
+        {
+            if (string.IsNullOrWhiteSpace(SetAbbreviations) || DeckCards == null) return;
+
+            List<string> sets = SetAbbreviations.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+            foreach (var cardvm in DeckCards)
+            {
+                foreach (string set in sets)
+                {
+                    var result = await FetchImageForSet(cardvm.Card.Cardname, set, cardvm.Card.BackFace);
+                    if (result != null && !string.IsNullOrWhiteSpace(result.Url))
+                    {
+                        cardvm.UpdateCardFaceURL(result.Url);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private async Task<FetchedImageResult> FetchImageForSet(string cardName, string setAbbrev, bool isBack)
+        {
+            try
+            {
+                string urlName = cardName.Replace(' ', '_');
+                string baseUrl = $"https://api.scryfall.com/cards/search?q=!{urlName}+set:{setAbbrev}+lang:{PreferredLanguage}&unique=prints";
+                HttpResponseMessage res = await httpClient.GetAsync(baseUrl);
+                if (res.IsSuccessStatusCode)
+                {
+                    string data = await res.Content.ReadAsStringAsync();
+                    JsonElement root = JsonSerializer.Deserialize<JsonElement>(data);
+                    if (root.TryGetProperty("data", out JsonElement cardInfos))
+                    {
+                        foreach (JsonElement cardInfo in cardInfos.EnumerateArray())
+                        {
+                            JsonElement cardImages, cardImage, cardFaces;
+
+                            if (cardInfo.TryGetProperty("image_uris", out cardImages))
+                            {
+                                if (!cardImages.TryGetProperty("normal", out cardImage))
+                                {
+                                    cardImages.TryGetProperty("small", out cardImage);
+                                }
+                            }
+                            else if (cardInfo.TryGetProperty("card_faces", out cardFaces))
+                            {
+                                cardFaces[isBack ? 1 : 0].TryGetProperty("image_uris", out cardImages);
+                                cardImages.TryGetProperty("normal", out cardImage);
+                            }
+                            else
+                            {
+                                continue;
+                            }
+
+                            return new FetchedImageResult
+                            {
+                                Url = cardImage.GetString(),
+                                Language = PreferredLanguage
+                            };
+                        }
+                    }
+                }
+            }
+            catch
+            {
             }
 
             return null;

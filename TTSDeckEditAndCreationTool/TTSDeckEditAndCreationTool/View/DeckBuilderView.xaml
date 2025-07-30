@@ -20,6 +20,9 @@
             <TextBox Background="Transparent" Foreground="White" Text="{Binding CardBackURL}" Margin="10" Width="200" VerticalContentAlignment="Center"/>
             <Image Source="{Binding DisplayCardBackURL}" Margin="5"/>
             <Label Grid.Row="2" Foreground="White" VerticalAlignment="Center" FontFamily="{StaticResource LightFont}" Margin="5" Content="{Binding ImportSummary}"/>
+            <Label Style="{DynamicResource BoldLabel}" VerticalAlignment="Center" Margin="10,0,0,0">Sets:</Label>
+            <TextBox Background="Transparent" Foreground="White" Text="{Binding SetAbbreviations}" Margin="5" Width="100" VerticalContentAlignment="Center"/>
+            <Button Style="{DynamicResource FlatButtonStyle}" Height="25" Background="{StaticResource Good}" Content="Apply" Width="80" Command="{Binding ApplySetStylesCommand}" Margin="5"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1" Background="Transparent" VerticalScrollBarVisibility="Auto">

@@ -203,9 +203,9 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                                     cardInfo.TryGetProperty("set", out setAbrrev);
                                     if(cardInfo.TryGetProperty("image_uris", out cardImages))
                                     {
-                                        if (!cardImages.TryGetProperty("small", out cardImage))
+                                        if (!cardImages.TryGetProperty("normal", out cardImage))
                                         {
-                                            cardImages.TryGetProperty("normal", out cardImage);
+                                            cardImages.TryGetProperty("small", out cardImage);
                                         }
                                     }
                                     else

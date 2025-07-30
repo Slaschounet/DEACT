@@ -37,6 +37,6 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Rectangle Grid.Row="2" Fill="{StaticResource MainLight}"
+        <Rectangle Grid.Row="2" Fill="{StaticResource MainLight}"/>
     </Grid>
 </UserControl>

@@ -109,7 +109,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         /// Set DeckInfoStores info, Navigate to DeckBuilder, and Call Deck Builders LoadFromPath to import the deckpath.
         /// This is called from the ImportSelectedPathCommand. See: Commands/ImportAndConvertCommand.cs
         /// </summary>
-        public void ConvertPathToDeckAndNavigate()
+        public async Task ConvertPathToDeckAndNavigate()
         {
             deckInfo.DeckPath = DeckFilePath;
             if(LanguageConverter.ContainsKey(SelectedLanguage))
@@ -123,7 +123,10 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
             NavigateToDeckViewCommand.Execute(null);
 
-            _deckBuilderViewModel?.LoadFromPath(DeckFilePath);
+            if (_deckBuilderViewModel != null)
+            {
+                await _deckBuilderViewModel.LoadFromPath(DeckFilePath);
+            }
         }
     }
 }

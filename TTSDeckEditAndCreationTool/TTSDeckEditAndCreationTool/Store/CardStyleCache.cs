@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using TTSDeckEditAndCreationTool.Model;
 using System.IO;
+using System.Net;
 
 namespace TTSDeckEditAndCreationTool.Store
 {
@@ -60,6 +61,23 @@ namespace TTSDeckEditAndCreationTool.Store
         public static void DeleteCacheFile()
         {
             File.Delete(SavePath);
+        }
+
+        public static string DownloadImageIfNeeded(string url)
+        {
+            string hash = Convert.ToBase64String(System.Security.Cryptography.MD5.Create().ComputeHash(Encoding.UTF8.GetBytes(url)))
+                            .Replace("/", "").Replace("+", "");
+            string localPath = Path.Combine(FolderPath, $"{hash}.jpg");
+
+            if (!File.Exists(localPath))
+            {
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(url, localPath);
+                }
+            }
+
+            return localPath;
         }
     }
 }

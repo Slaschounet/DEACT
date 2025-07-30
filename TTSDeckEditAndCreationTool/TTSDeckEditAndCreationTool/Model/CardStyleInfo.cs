@@ -12,16 +12,29 @@ namespace TTSDeckEditAndCreationTool.Model
 
         public string URL { get; set; }
 
-        public CardStyleInfo(string setAbbreviation, string url)
+        /// <summary>
+        /// Release date of this particular printing. This is used to sort prints
+        /// by their release dates so that the newest card is shown first in the
+        /// style selection window.
+        /// </summary>
+        public DateTime ReleaseDate { get; set; }
+
+        public CardStyleInfo(string setAbbreviation, string url, DateTime releaseDate)
         {
             SetAbbreviation = setAbbreviation;
             URL = url;
+            ReleaseDate = releaseDate;
         }
+
+        public CardStyleInfo(string setAbbreviation, string url)
+            : this(setAbbreviation, url, DateTime.MinValue)
+        { }
 
         public CardStyleInfo()
         {
             SetAbbreviation = "";
             URL = "";
+            ReleaseDate = DateTime.MinValue;
         }
     }
 }

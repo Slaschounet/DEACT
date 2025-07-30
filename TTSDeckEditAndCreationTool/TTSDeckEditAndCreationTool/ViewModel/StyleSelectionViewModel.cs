@@ -151,7 +151,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         private void SetPrintsFromStyles()
         {
             Prints = new List<CardStyleViewModel>();
-            foreach(CardStyleInfo cardstyle in Styles.Prints)
+            // Order prints by release date with the newest first
+            foreach (CardStyleInfo cardstyle in Styles.Prints.OrderByDescending(p => p.ReleaseDate))
             {
                 Prints.Add(new CardStyleViewModel(cardstyle, this));
             }
@@ -222,10 +223,11 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
                                 foreach (JsonElement cardInfo in cardInfos.EnumerateArray())
                                 {
-                                    JsonElement setAbrrev, cardImages, cardImage, cardFaces;
+                                    JsonElement setAbrrev, cardImages, cardImage, cardFaces, releasedAt;
 
                                     cardInfo.TryGetProperty("set", out setAbrrev);
-                                    if(cardInfo.TryGetProperty("image_uris", out cardImages))
+                                    cardInfo.TryGetProperty("released_at", out releasedAt);
+                                    if (cardInfo.TryGetProperty("image_uris", out cardImages))
                                     {
                                         if (!cardImages.TryGetProperty("normal", out cardImage))
                                         {
@@ -239,8 +241,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                                         cardImages.TryGetProperty("normal", out cardImage);
                                     }
 
-                                    CardStyleInfo newCardStyleInfo = new CardStyleInfo(setAbrrev.GetString(), cardImage.GetString());
+                                    DateTime releaseDate = DateTime.MinValue;
+                                    if (releasedAt.ValueKind == JsonValueKind.String)
+                                    {
+                                        DateTime.TryParse(releasedAt.GetString(), out releaseDate);
+                                    }
 
+                                    string remoteUrl = cardImage.GetString();
+                                    string localPath = CardStyleCache.DownloadImageIfNeeded(remoteUrl);
+                                    CardStyleInfo newCardStyleInfo = new CardStyleInfo(setAbrrev.GetString(), localPath, releaseDate);
                                     Styles.Prints.Add(newCardStyleInfo);
                                 }
                             }

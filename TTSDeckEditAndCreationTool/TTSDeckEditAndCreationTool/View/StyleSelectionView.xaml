@@ -18,12 +18,14 @@
         </Grid.RowDefinitions>
 
         <Rectangle x:Name="TopBar" Fill="{StaticResource MainLight}" MouseDown="TopBar_MouseDown"/>
+        <TextBox Width="150" Height="30" Margin="10,0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                 Background="{StaticResource MainLight}" Foreground="White" FontSize="20" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
         <Button x:Name="CloseButton" Style="{StaticResource ImageButton}" Width="40" HorizontalAlignment="Right" Click="CloseButton_Click">
             <Label Style="{StaticResource BoldLabel}" Content="X" FontSize="30"/>
         </Button>
 
         <ScrollViewer Grid.Row="1" Background="Transparent" VerticalScrollBarVisibility="Auto">
-            <ItemsControl ItemsSource="{Binding Prints}">
+            <ItemsControl ItemsSource="{Binding FilteredPrints}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel/>

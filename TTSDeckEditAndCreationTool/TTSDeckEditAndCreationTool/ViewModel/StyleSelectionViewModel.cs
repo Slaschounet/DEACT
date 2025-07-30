@@ -102,6 +102,27 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             }
         }
 
+        private string _searchText = string.Empty;
+        public string SearchText
+        {
+            get { return _searchText; }
+            set
+            {
+                _searchText = value;
+                OnPropertyChanged(nameof(SearchText));
+                OnPropertyChanged(nameof(FilteredPrints));
+            }
+        }
+
+        public IEnumerable<CardStyleViewModel> FilteredPrints
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(SearchText)) return Prints;
+                return Prints.Where(p => p.SetAbbreviation != null && p.SetAbbreviation.ToLower().Contains(SearchText.ToLower()));
+            }
+        }
+
         public StyleSelectionViewModel(DeckCard card, CardBuilderViewModel cbvm)
         {
             Card = card;
@@ -123,6 +144,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             Prints = new List<CardStyleViewModel>();
             Styles.Prints = new List<CardStyleInfo>();
             OnPropertyChanged(nameof(Prints));
+            OnPropertyChanged(nameof(FilteredPrints));
             LoadOrFetch();
         }
 
@@ -134,11 +156,13 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 Prints.Add(new CardStyleViewModel(cardstyle, this));
             }
             OnPropertyChanged(nameof(Prints));
+            OnPropertyChanged(nameof(FilteredPrints));
         }
 
         public void ManualRefreshVisuals()
         {
             OnPropertyChanged(nameof(Prints));
+            OnPropertyChanged(nameof(FilteredPrints));
             OnPropertyChanged(nameof(Styles));
         }
 

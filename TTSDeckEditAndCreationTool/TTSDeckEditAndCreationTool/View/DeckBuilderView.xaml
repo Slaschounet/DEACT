@@ -37,5 +37,6 @@
         </ScrollViewer>
 
         <Rectangle Grid.Row="2" Fill="{StaticResource MainLight}"/>
+        <Label Grid.Row="2" Foreground="White" VerticalAlignment="Center" FontFamily="{StaticResource LightFont}" Margin="5" Content="{Binding ImportSummary}"/>
     </Grid>
 </UserControl>

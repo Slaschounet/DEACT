@@ -22,6 +22,12 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private static readonly HttpClient httpClient = new HttpClient();
 
+        static DeckBuilderViewModel()
+        {
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "DEACT/1.0 (contact@example.com)");
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        }
+
         public ObservableCollection<CardBuilderViewModel> DeckCards
         {
             get

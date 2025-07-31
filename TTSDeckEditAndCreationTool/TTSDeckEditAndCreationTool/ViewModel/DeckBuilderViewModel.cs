@@ -270,7 +270,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                 }
                 else
                 {
-                    if (!IsUpdated && string.IsNullOrWhiteSpace(face))
+                    if (!IsUpdated)
                     {
                         var result = await FetchPreferredImage(nick.Split("\n")[0], isBack);
                         string altFace = result?.Url;
@@ -302,7 +302,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                     CardArt.Add(nick, face);
                 }
                 CardBuilderViewModel temp = new CardBuilderViewModel(new DeckCard(nick, cardid.GetInt32(), face, isBack));
-                temp.Card.OldFaceURL = originalFace;
+                if (!IsUpdated)
+                {
+                    temp.Card.OldFaceURL = face;
+                }
+                else
+                {
+                    temp.Card.OldFaceURL = originalFace;
+                }
+               
                 temp.Card.Cardname = nick.Split('\n')[0];
                 if (!CardLookup.ContainsKey(nick)) CardLookup.Add(nick, temp.Card);
                 DeckCards.Add(temp);
@@ -312,6 +320,26 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         public void SaveDeckToPath()
         {
             System.Diagnostics.Debug.WriteLine("====== SAVE START ======");
+            
+            IsUpdated = true;
+            OnPropertyChanged(nameof(IsUpdated));
+
+            if (!string.IsNullOrWhiteSpace(_deckJson))
+            {
+                if (_deckJson.Contains("\"isUpdated\""))
+                {
+                    _deckJson = Regex.Replace(_deckJson, "\"isUpdated\"\\s*:\\s*(true|false)", "\"isUpdated\": true");
+                }
+                else
+                {
+                    int braceIndex = _deckJson.IndexOf('{');
+                    if (braceIndex >= 0)
+                    {
+                        _deckJson = _deckJson.Insert(braceIndex + 1, "\"isUpdated\": true,");
+                    }
+                }
+            }
+
 
             foreach (CardBuilderViewModel cardvm in DeckCards)
             {
@@ -358,7 +386,6 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             if (string.IsNullOrWhiteSpace(json)) return json;
 
             json = Regex.Replace(json, "/(small|normal|large)/", "/png/");
-            json = Regex.Replace(json, "\\.jpg", ".png");
 
             return json;
         }

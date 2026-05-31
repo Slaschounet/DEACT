@@ -1,6 +1,35 @@
 # DEACT
 Tool for editing and adding decks used in Tabletop Simulator
 
+# Version 0.4.0
+Big update: DEACT can now **generate** a TTS deck from scratch out of a plain decklist, instead of only editing an imported file.
+
+Why? The in-game TTS Scryfall importer (the old source of these JSON files) was disabled, so there's no longer a file to import. Now you paste a decklist and DEACT builds the Saved Object itself, placing the art you choose. The old Import / Merge / Set Card Back flows are all still there and unchanged.
+
+New: Generate from a decklist
+1. Click **Generate** on the home page.
+2. Paste your decklist (one card per line). Quantity and set/collector number are optional, e.g.:
+   - `1 Atraxa, Praetors' Voice (2X2) 145`
+   - `2x Sol Ring (C21) 263`
+   - `10 Forest`
+   - `1 Lightning Bolt`
+   Foil markers (`*F*`), tags (`[Ramp]`), comments (`//`, `#`) and section headers (`Commander`, `Sideboard (15)`, ...) are ignored automatically.
+3. Pick a **language** and, optionally, pin one or more **series** so art is pulled from those sets first.
+4. Click **Generate Deck**. Each card is resolved on Scryfall (reading the real image URLs, never guessing them), shown in the gallery, then **Save** the JSON into your TTS Saved Objects folder.
+5. The deck is built as one pile with an individual image per card. Double-faced / modal cards flip in-game (handled via TTS states).
+
+New gallery indicators
+- **Card counter** in the header, e.g. `100 cards (89 unique)` (counts duplicates) so you can confirm you pasted a full deck.
+- **R/V badge** on a card means it's double-faced.
+- **Language badge** (e.g. `EN`) means that card's art was found in a language other than the one you asked for. This also fixes the old issue where English fallbacks showed no warning at all.
+- Status dot stays: orange = no art in the chosen language, red = fetch failed / rate-limited. Missing-art cards are logged to `C:/ProgramData/DEACT/DEACT_fetch_errors.log`.
+
+Other improvements
+- **Series picker** (multi-select) on the import and generate screens and in the gallery; pin several sets and they're tried in priority order.
+- **Faster & gentler on Scryfall**: image-URL caching is back (24h), pinned sets are bulk-preloaded, and both faces of a card come from a single request. Large decks resolve far faster and re-runs are near-instant.
+- A loading overlay shows live progress (X/N, elapsed time, and a countdown if Scryfall briefly rate-limits).
+- Saved images are upgraded to Scryfall's full-resolution PNG.
+
 # Version 0.3.5
 When chosing a card style there is now a language dropdown in the bottom right. *note if the card has no results from the selected language you will get an error popup. Future todo would be to handle that more gracefully.
 

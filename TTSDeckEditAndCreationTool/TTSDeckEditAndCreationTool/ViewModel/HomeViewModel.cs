@@ -13,11 +13,13 @@ namespace TTSDeckEditAndCreationTool.ViewModel
     {
         public ICommand SwitchToQBGCommand { get; }
         public ICommand SwitchToDeckImportCommand { get; }
+        public ICommand SwitchToDeckGenerateCommand { get; }
         public ICommand SwitchToDeckMergeCommand { get; }
         public HomeViewModel(NavigationStore navigationStore)
         {
             SwitchToQBGCommand = new NavigateCommand<QuickBGViewModel>(navigationStore, () => new QuickBGViewModel(navigationStore));
             SwitchToDeckImportCommand = new NavigateCommand<ImportDeckViewModel>(navigationStore, () => new ImportDeckViewModel(navigationStore));
+            SwitchToDeckGenerateCommand = new NavigateCommand<DecklistImportViewModel>(navigationStore, () => new DecklistImportViewModel(navigationStore));
             SwitchToDeckMergeCommand = new NavigateCommand<MergeDeckViewModel>(navigationStore, () => new MergeDeckViewModel(navigationStore));
         }
     }

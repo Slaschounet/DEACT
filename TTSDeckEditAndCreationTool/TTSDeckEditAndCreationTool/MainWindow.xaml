@@ -41,6 +41,9 @@
                 <DataTemplate DataType="{x:Type viewmodels:ImportDeckViewModel}">
                     <views:ImportDeckView/>
                 </DataTemplate>
+                <DataTemplate DataType="{x:Type viewmodels:DecklistImportViewModel}">
+                    <views:DecklistImportView/>
+                </DataTemplate>
                 <DataTemplate DataType="{x:Type viewmodels:DeckBuilderViewModel}">
                     <views:DeckBuilderView/>
                 </DataTemplate>

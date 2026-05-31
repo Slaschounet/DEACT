@@ -4,8 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TTSDeckEditAndCreationTool.View"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
              Height="420" Width="340">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
     <Border BorderThickness="1" BorderBrush="{StaticResource MainLight}" Margin="5" CornerRadius="5" Background="{StaticResource MainMid}" MouseEnter="Border_MouseEnter" MouseLeave="Border_MouseLeave">
         <Grid>
             <Grid.RowDefinitions>
@@ -16,7 +19,34 @@
 
             <Label Foreground="White" Content="{Binding Card.Cardname, FallbackValue=KamiOfTheCrescentMoon}" Style="{StaticResource BoldLabel}" FontSize="14"/>
 
-            <Image Grid.Row="1" Source="{Binding Card.FaceURL}" RenderOptions.BitmapScalingMode="HighQuality"/>
+            <!-- Status dot: orange = no art in selected language, red = fetch error/rate-limited -->
+            <Ellipse Grid.Row="0" Width="14" Height="14" Margin="0,4,8,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                     Fill="#FFA500" Stroke="#33000000" StrokeThickness="1"
+                     Visibility="{Binding ShowNotFoundIcon, Converter={StaticResource BoolToVis}}"
+                     ToolTip="{Binding StatusTooltip}"/>
+            <Ellipse Grid.Row="0" Width="14" Height="14" Margin="0,4,8,0" HorizontalAlignment="Right" VerticalAlignment="Top"
+                     Fill="#E53935" Stroke="#33000000" StrokeThickness="1"
+                     Visibility="{Binding ShowErrorIcon, Converter={StaticResource BoolToVis}}"
+                     ToolTip="{Binding StatusTooltip}"/>
+
+            <!-- TargetNullValue avoids an ImageSourceConverter warning while FaceURL is still null during load -->
+            <Image Grid.Row="1" Source="{Binding Card.FaceURL, TargetNullValue={x:Null}, FallbackValue={x:Null}}" RenderOptions.BitmapScalingMode="HighQuality"/>
+
+            <!-- Double-faced badge (top-left over the art): flips to a back face via States in TTS -->
+            <Border Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"
+                    Background="#CC1565C0" CornerRadius="3" Padding="5,2"
+                    Visibility="{Binding IsDoubleFaced, Converter={StaticResource BoolToVis}}"
+                    ToolTip="Double-faced card — flips to its back face in TTS.">
+                <TextBlock Text="⇄ R/V" Foreground="White" FontSize="12" FontWeight="Bold"/>
+            </Border>
+
+            <!-- Language fallback badge (top-right over the art): art is not in the preferred language -->
+            <Border Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8"
+                    Background="#CCB8860B" CornerRadius="3" Padding="5,2"
+                    Visibility="{Binding ShowLanguageWarning, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding LanguageTooltip}">
+                <TextBlock Text="{Binding LanguageWarning}" Foreground="White" FontSize="12" FontWeight="Bold"/>
+            </Border>
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>

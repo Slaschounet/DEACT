@@ -49,3 +49,11 @@ obj/
 
 # VS config
 .vs/
+
+# Skills installés localement (mattpocock/skills via npx skills)
+TTSDeckEditAndCreationTool/.agents/
+TTSDeckEditAndCreationTool/.claude/skills/
+
+# Fichiers de test locaux (decks TTS, convertisseur de référence) — ne pas committer
+TTSDeckEditAndCreationTool/sample/
+TTSDeckEditAndCreationTool/reference/

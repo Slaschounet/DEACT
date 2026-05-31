@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Collections.Generic;
 
 namespace TTSDeckEditAndCreationTool.Model
 {
@@ -18,6 +13,15 @@ namespace TTSDeckEditAndCreationTool.Model
 
         public string FaceURL { get; set; }
         public string OldFaceURL { get; set; }
+
+        // --- Generation mode (decklist -> JSON) extras ---
+        // Optional precise print requested from the decklist line "Name (SET) NUMBER".
+        public string SetCode { get; set; }
+        public string CollectorNumber { get; set; }
+        // Back-face image for double-faced/modal cards. When set, the generator emits
+        // this card as a single object carrying its verso in States["2"] (see TtsDeckBuilder).
+        // null for ordinary single-faced cards (their physical back is the deck BackURL).
+        public string BackFaceURL { get; set; }
 
         List<string> PrintURLs { get; set; }
 

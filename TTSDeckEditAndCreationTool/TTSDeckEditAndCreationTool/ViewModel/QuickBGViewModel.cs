@@ -110,7 +110,10 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                     }
                 }
 
-                string replacementBase = jsonString.Substring(startIndex, endIndex - startIndex - 1);
+                // grab the existing card back URL from the json
+                // endIndex currently points at the closing quote of the URL so
+                // subtracting 1 was causing the final character to be dropped
+                string replacementBase = jsonString.Substring(startIndex, endIndex - startIndex);
 
                 OutputTextBlock += "replacement target set to: " + replacementBase + "\n";
                 OutputTextBlock += "replacement string set to: " + BackImageURL + "\n";

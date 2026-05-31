@@ -206,20 +206,44 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             {
                 using (HttpClient client = new HttpClient())
                 {
-                    client.DefaultRequestHeaders.Add("User-Agent", "MyApp/1.0 (contact@example.com)");
+                    client.DefaultRequestHeaders.Add("User-Agent", "DEACT/1.0 (contact@example.com)");
                     client.DefaultRequestHeaders.Add("Accept", "application/json");
-                    using (HttpResponseMessage res = await client.GetAsync(baseUrl))
+
+                    HttpResponseMessage res = await client.GetAsync(baseUrl);
+                    // Scryfall rate-limits bursts with HTTP 429; back off exponentially
+                    // (honoring Retry-After) for a few attempts before giving up.
+                    int backoffMs = 500;
+                    for (int attempt = 0; attempt < 4 && (int)res.StatusCode == 429; attempt++)
+                    {
+                        int waitMs = res.Headers.RetryAfter?.Delta is TimeSpan ra && ra.TotalMilliseconds > 0
+                            ? (int)ra.TotalMilliseconds
+                            : backoffMs;
+                        res.Dispose();
+                        await Task.Delay(waitMs);
+                        backoffMs *= 2;
+                        res = await client.GetAsync(baseUrl);
+                    }
+
+                    using (res)
                     {
                         using (HttpContent content = res.Content)
                         {
                             var data = await content.ReadAsStringAsync();
-                            if (content != null)
+                            if (res.IsSuccessStatusCode)
                             {
                                 JsonElement testObject, cardInfos;
                                 testObject = JsonSerializer.Deserialize<JsonElement>(data);
                                 testObject.TryGetProperty("data", out cardInfos);
                                 testObject.TryGetProperty("has_more", out hasNext);
                                 testObject.TryGetProperty("next_page", out nextUrl);
+
+                                // On a rate-limited / error response there is no "data" array;
+                                // guard against EnumerateArray throwing on a non-array element.
+                                if (cardInfos.ValueKind != JsonValueKind.Array)
+                                {
+                                    FeedbackPopupViewModel.Instance.DisplayErrorMessage("Scryfall returned no card data (possibly rate-limited). Please retry.");
+                                    return;
+                                }
 
                                 foreach (JsonElement cardInfo in cardInfos.EnumerateArray())
                                 {

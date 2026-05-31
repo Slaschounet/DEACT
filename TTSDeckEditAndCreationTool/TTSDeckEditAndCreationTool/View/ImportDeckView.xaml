@@ -4,10 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TTSDeckEditAndCreationTool.View"
-             mc:Ignorable="d" 
-             Height="200" Width="400">
+             mc:Ignorable="d"
+             Height="240" Width="400">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition/>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
@@ -35,5 +36,35 @@
             <ComboBoxItem>Traditional Chinese</ComboBoxItem>
         </ComboBox>
         <Button Grid.Column="1" Grid.Row="1" Width="120" Height="30" Margin="150,0,0,0" HorizontalAlignment="Left" Style="{DynamicResource FlatButtonStyle}" Background="{StaticResource Good}" Command="{Binding ImportSelectedPathCommand}">Import</Button>
+
+        <Label Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,4,0,0" FontSize="13" Style="{DynamicResource BoldLabel}">Sets:</Label>
+        <StackPanel Grid.Column="1" Grid.Row="2" Margin="0,4,0,0">
+            <ComboBox Width="270" Height="28" HorizontalAlignment="Left"
+                      Foreground="Black" Background="{StaticResource MainLight}"
+                      IsEditable="True" IsTextSearchEnabled="False" StaysOpenOnEdit="True"
+                      ItemsSource="{Binding SetSelector.FilteredSets}"
+                      DisplayMemberPath="Display"
+                      Text="{Binding SetSelector.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                      SelectedItem="{Binding SetSelector.ComboSelection}"
+                      ToolTip="Type to search, pick one or more series (leave empty for any set)"/>
+            <ItemsControl ItemsSource="{Binding SetSelector.SelectedSets}" Margin="0,4,0,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{StaticResource Good}" CornerRadius="3" Margin="0,0,4,4" Padding="6,2">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Code}" Foreground="White" VerticalAlignment="Center"/>
+                                <Button Content="✕" Margin="6,0,0,0" Padding="2,0" FontSize="10" Foreground="White"
+                                        Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                        Command="{Binding DataContext.SetSelector.RemoveSetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
     </Grid>
 </UserControl>

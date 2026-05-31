@@ -22,11 +22,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
     /// </summary>
     class ImportDeckViewModel : ViewModelBase
     {
+        private const string PathPlaceholder = "File Path...";
+
         private string _deckFilePath;
         public string DeckFilePath
         {
-            get { return string.IsNullOrWhiteSpace(_deckFilePath) ? "File Path..." : _deckFilePath; }
-            set { _deckFilePath = value; }
+            // Placeholder is only a display hint; never let it become the real value
+            // (the editable Sets combo can trigger a write-back of the shown text).
+            get { return string.IsNullOrWhiteSpace(_deckFilePath) ? PathPlaceholder : _deckFilePath; }
+            set { _deckFilePath = (value == PathPlaceholder) ? null : value; }
         }
 
         private DeckInfoStore deckInfo { get; set; }
@@ -52,6 +56,9 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         {
             get { return LanguageConverter.Keys; }
         }
+
+        /// <summary>Series picker, shared with the deck builder so a set chosen here is still pinned in the gallery.</summary>
+        public SetSelectorViewModel SetSelector => _deckBuilderViewModel.SetSelector;
 
         private string _selectedLanguage;
         public string SelectedLanguage
@@ -111,7 +118,14 @@ namespace TTSDeckEditAndCreationTool.ViewModel
         /// </summary>
         public async Task ConvertPathToDeckAndNavigate()
         {
-            deckInfo.DeckPath = DeckFilePath;
+            // Guard against the placeholder / a non-existent path being used as the file.
+            if (string.IsNullOrWhiteSpace(_deckFilePath) || !File.Exists(_deckFilePath))
+            {
+                FeedbackPopupViewModel.Instance.DisplayErrorMessage("Please select a deck file first (use Browse).");
+                return;
+            }
+
+            deckInfo.DeckPath = _deckFilePath;
             if(LanguageConverter.ContainsKey(SelectedLanguage))
             {
                 _deckBuilderViewModel.PreferredLanguage = LanguageConverter[SelectedLanguage];
@@ -125,7 +139,7 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
             if (_deckBuilderViewModel != null)
             {
-                await _deckBuilderViewModel.LoadFromPath(DeckFilePath);
+                await _deckBuilderViewModel.LoadFromPath(_deckFilePath);
             }
         }
     }

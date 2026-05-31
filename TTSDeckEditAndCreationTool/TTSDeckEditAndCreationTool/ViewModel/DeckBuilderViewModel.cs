@@ -77,6 +77,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             }
         }
 
+        /// <summary>Total cards in the deck counting duplicates (e.g. 100 for a Commander deck).</summary>
+        public int TotalCardCount => _deckCards?.Sum(c => c.Card?.Count ?? 0) ?? 0;
+
+        /// <summary>Number of distinct cards (gallery tiles).</summary>
+        public int UniqueCardCount => _deckCards?.Count ?? 0;
+
+        /// <summary>Header label: "100 cards (89 unique)".</summary>
+        public string DeckCountSummary => $"{TotalCardCount} cards ({UniqueCardCount} unique)";
+
         public string CardBackURL
         {
             get
@@ -205,6 +214,10 @@ namespace TTSDeckEditAndCreationTool.ViewModel
 
         private string _deckPath { get; set; }
         private TtsSaveFile _save; //typed, round-trip-safe model of the loaded deck; the single source of truth for saving
+        // True when this deck was built from a decklist (generation mode) rather than
+        // imported from a TTS file. In that mode there is no _save to edit; Save builds
+        // a fresh Saved Object from DeckCards via TtsDeckBuilder. See LoadFromDecklist.
+        private bool _isGenerated;
         private string _oldCardBackURL { get; set; }
         private bool _isUpdated;
         public bool IsUpdated
@@ -326,6 +339,249 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             //PART 3 : LOAD ON SCREEN
             OnPropertyChanged(nameof(DeckCards));
             OnPropertyChanged(nameof(CardBackURL));
+            OnPropertyChanged(nameof(TotalCardCount));
+            OnPropertyChanged(nameof(UniqueCardCount));
+            OnPropertyChanged(nameof(DeckCountSummary));
+        }
+
+        /// <summary>
+        /// Generation flow: resolve a parsed decklist into on-screen cards (front + verso
+        /// images from Scryfall), then let the user tweak art in the same gallery. Saving
+        /// builds a fresh TTS Saved Object from these cards (see SaveDeckToPath).
+        /// </summary>
+        public async Task LoadFromDecklist(System.Collections.Generic.List<ParsedDeckLine> lines)
+        {
+            _isGenerated = true;
+            _save = null;
+            _deckPath = null;
+            IsUpdated = false;
+
+            DeckCards = new ObservableCollection<CardBuilderViewModel>();
+            CardLookup = new Dictionary<string, DeckCard>();
+            CardArt = new Dictionary<string, string>();
+
+            _preferredLanguageCount = 0;
+            _defaultLanguageCount = 0;
+            _errorCount = 0;
+            OnPropertyChanged(nameof(ImportSummary));
+
+            if (lines == null || lines.Count == 0)
+            {
+                FeedbackPopupViewModel.Instance.DisplayErrorMessage("The decklist is empty or could not be parsed.");
+                return;
+            }
+
+            BeginBusy(lines.Count, "Resolving cards");
+            try
+            {
+                // Pinned series fill the cache in bulk first, just like the import flow.
+                await PreloadSelectedSetsAsync();
+
+                foreach (ParsedDeckLine line in lines)
+                {
+                    string name = line.Name;
+
+                    // Dedupe by name: a repeated card just bumps the count and shares one image.
+                    if (CardLookup.TryGetValue(name, out DeckCard existing))
+                    {
+                        existing.Count += line.Count;
+                        DeckCards.FirstOrDefault(c => c.Card == existing)?.NotifyCountChanged();
+                        OnPropertyChanged(nameof(TotalCardCount));
+                        OnPropertyChanged(nameof(DeckCountSummary));
+                        StepProgress();
+                        continue;
+                    }
+
+                    // One lookup yields BOTH faces (the Scryfall response carries card_faces),
+                    // so single-faced cards no longer pay for a wasted second back-face search.
+                    (FetchedImageResult front, string backUrl) = await ResolveDeckCardFaces(name, line.SetCode, line.CollectorNumber);
+                    FetchOutcome outcome = front.Outcome;
+                    string faceUrl = front?.Url;
+
+                    if (!string.IsNullOrWhiteSpace(faceUrl))
+                    {
+                        if (front.Language == PreferredLanguage) _preferredLanguageCount++;
+                        else if (front.Language == "en") _defaultLanguageCount++;
+                    }
+                    else
+                    {
+                        _errorCount++;
+                    }
+                    OnPropertyChanged(nameof(ImportSummary));
+
+                    var card = new DeckCard(name, 0, faceUrl, false, 'L', line.Count)
+                    {
+                        Cardname = name,
+                        SetCode = line.SetCode,
+                        CollectorNumber = line.CollectorNumber,
+                        BackFaceURL = backUrl
+                    };
+
+                    var temp = new CardBuilderViewModel(card) { FetchStatus = outcome };
+                    // Flag a non-preferred-language fallback (e.g. art only found in English).
+                    if (!string.IsNullOrWhiteSpace(faceUrl)
+                        && !string.IsNullOrWhiteSpace(front.Language)
+                        && front.Language != PreferredLanguage)
+                    {
+                        temp.LanguageWarning = front.Language.ToUpper();
+                    }
+                    CardLookup.Add(name, card);
+                    DeckCards.Add(temp);
+                    OnPropertyChanged(nameof(TotalCardCount));
+                    OnPropertyChanged(nameof(UniqueCardCount));
+                    OnPropertyChanged(nameof(DeckCountSummary));
+
+                    StepProgress();
+                }
+            }
+            catch (Exception e)
+            {
+                FeedbackPopupViewModel.Instance.DisplayErrorMessage("Error resolving decklist \n\n" + e.Message);
+            }
+            finally
+            {
+                CardStyleCache.SaveFaceCache();
+                EndBusy();
+            }
+
+            FetchStatus = ImportSummary;
+            OnPropertyChanged(nameof(DeckCards));
+            OnPropertyChanged(nameof(TotalCardCount));
+            OnPropertyChanged(nameof(UniqueCardCount));
+            OnPropertyChanged(nameof(DeckCountSummary));
+        }
+
+        /// <summary>Front + optional back image resolved in a single Scryfall lookup.</summary>
+        private class CardFaces
+        {
+            public string Front;
+            public string Back;            // null for single-faced cards
+            public string Language;
+            public FetchOutcome Outcome;
+        }
+
+        /// <summary>
+        /// Resolves a card's front (and back, if double-faced) for the generation flow,
+        /// honoring (in priority order) the decklist line's pinned print "(SET) NUMBER",
+        /// then the user-selected series, then any set; each tried preferred language first,
+        /// then English. Both faces come from ONE search response, so a single-faced card
+        /// never pays for a separate back-face lookup.
+        ///
+        /// Performance: any set already bulk-loaded by <see cref="PreloadSelectedSetsAsync"/>
+        /// is resolved from the cache only — a cache miss there means the card simply isn't
+        /// in that set, so we skip the network for it instead of issuing a doomed request.
+        /// </summary>
+        private async Task<(FetchedImageResult front, string back)> ResolveDeckCardFaces(string name, string setCode, string collector)
+        {
+            string preferred = string.IsNullOrWhiteSpace(PreferredLanguage) ? "en" : PreferredLanguage;
+            List<string> languages = new[] { preferred, "en" }.Distinct().ToList();
+
+            var preloaded = new HashSet<string>(SetSelector?.SelectedSetCodes ?? new List<string>());
+
+            // Set priority: explicit pinned set, then pinned series, then "any set" (null).
+            List<string> sets = new List<string>();
+            if (!string.IsNullOrWhiteSpace(setCode)) sets.Add(setCode);
+            if (SetSelector?.SelectedSetCodes != null) sets.AddRange(SetSelector.SelectedSetCodes);
+            sets.Add(null);
+
+            bool sawRateLimit = false, sawError = false;
+            foreach (string set in sets)
+            {
+                foreach (string lang in languages)
+                {
+                    // The collector number only pins the explicit decklist set.
+                    string cn = (set == setCode && !string.IsNullOrWhiteSpace(setCode)) ? collector : null;
+                    // Preloaded set + no collector = cache is authoritative: skip the network.
+                    bool cacheOnly = set != null && string.IsNullOrWhiteSpace(cn) && preloaded.Contains(set);
+
+                    CardFaces r = await TryFetchFaces(name, lang, set, cn, cacheOnly);
+                    if (r.Outcome == FetchOutcome.Success)
+                        return (new FetchedImageResult { Url = r.Front, Language = r.Language, Outcome = FetchOutcome.Success }, r.Back);
+                    if (r.Outcome == FetchOutcome.RateLimited) sawRateLimit = true;
+                    else if (r.Outcome == FetchOutcome.Error) sawError = true;
+                }
+            }
+
+            return (new FetchedImageResult
+            {
+                Outcome = sawRateLimit ? FetchOutcome.RateLimited
+                        : sawError ? FetchOutcome.Error
+                        : FetchOutcome.NotFound
+            }, null);
+        }
+
+        /// <summary>
+        /// One Scryfall search for a (card, language[, set, collector]); extracts BOTH faces
+        /// from the response. Honors the face cache when no collector number is given. When
+        /// <paramref name="cacheOnly"/> is set, a cache miss returns NotFound without hitting
+        /// the network (used for sets already bulk-preloaded). The "no back" case relies on
+        /// the preload invariant: it caches a back face iff one exists, so a cached front with
+        /// no cached back means the card is single-faced.
+        /// </summary>
+        private async Task<CardFaces> TryFetchFaces(string cardName, string lang, string setCode, string collector, bool cacheOnly)
+        {
+            bool useCache = string.IsNullOrWhiteSpace(collector);
+            if (useCache)
+            {
+                string cf = CardStyleCache.GetCachedFace(cardName, lang, false, setCode);
+                if (!string.IsNullOrEmpty(cf))
+                {
+                    string cb = CardStyleCache.GetCachedFace(cardName, lang, true, setCode);
+                    return new CardFaces { Front = cf, Back = string.IsNullOrEmpty(cb) ? null : cb, Language = lang, Outcome = FetchOutcome.Success };
+                }
+                if (cacheOnly)
+                    return new CardFaces { Outcome = FetchOutcome.NotFound };
+            }
+
+            try
+            {
+                string q = "!" + cardName.Replace(' ', '_') + " lang:" + lang;
+                if (!string.IsNullOrWhiteSpace(setCode)) q += " set:" + setCode;
+                if (!string.IsNullOrWhiteSpace(collector)) q += " cn:" + collector;
+                string baseUrl = "https://api.scryfall.com/cards/search?q=" + q + "&unique=prints";
+
+                using HttpResponseMessage res = await GetWithRateLimitAsync(baseUrl);
+                if ((int)res.StatusCode == 429)
+                    return new CardFaces { Outcome = FetchOutcome.RateLimited };
+                if (!res.IsSuccessStatusCode)
+                    return new CardFaces { Outcome = FetchOutcome.Error };
+
+                string data = await res.Content.ReadAsStringAsync();
+                JsonElement root = JsonSerializer.Deserialize<JsonElement>(data);
+                if (root.TryGetProperty("data", out JsonElement cardInfos) && cardInfos.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (JsonElement cardInfo in cardInfos.EnumerateArray())
+                    {
+                        string front = null, back = null;
+                        if (cardInfo.TryGetProperty("image_uris", out JsonElement imgs))
+                        {
+                            front = PickNormal(imgs);
+                        }
+                        else if (cardInfo.TryGetProperty("card_faces", out JsonElement faces) && faces.ValueKind == JsonValueKind.Array)
+                        {
+                            var faceList = faces.EnumerateArray().ToList();
+                            if (faceList.Count > 0 && faceList[0].TryGetProperty("image_uris", out JsonElement f0))
+                                front = PickNormal(f0);
+                            if (faceList.Count > 1 && faceList[1].TryGetProperty("image_uris", out JsonElement f1))
+                                back = PickNormal(f1);
+                        }
+
+                        if (string.IsNullOrEmpty(front)) continue;
+                        if (useCache)
+                        {
+                            CardStyleCache.StoreCachedFace(cardName, lang, false, front, setCode);
+                            if (!string.IsNullOrEmpty(back))
+                                CardStyleCache.StoreCachedFace(cardName, lang, true, back, setCode);
+                        }
+                        return new CardFaces { Front = front, Back = back, Language = lang, Outcome = FetchOutcome.Success };
+                    }
+                }
+                return new CardFaces { Outcome = FetchOutcome.NotFound };
+            }
+            catch
+            {
+                return new CardFaces { Outcome = FetchOutcome.Error };
+            }
         }
 
         private async Task ParseCard(TtsObject card)
@@ -363,11 +619,15 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             if (CardLookup.ContainsKey(nick))
             {
                 CardLookup[nick].Count++;
+                DeckCards.FirstOrDefault(c => c.Card == CardLookup[nick])?.NotifyCountChanged();
+                OnPropertyChanged(nameof(TotalCardCount));
+                OnPropertyChanged(nameof(DeckCountSummary));
                 return;
             }
 
             string face = originalFace;
             FetchOutcome outcome = FetchOutcome.Success; //drives the per-tile status dot
+            string fallbackLang = null; //set when art resolved in a non-preferred language
             if (CardArt.ContainsKey(nick))
             {
                 face = CardArt[nick];
@@ -384,6 +644,8 @@ namespace TTSDeckEditAndCreationTool.ViewModel
                         face = altFace;
                         if (usedLang == PreferredLanguage) _preferredLanguageCount++;
                         else if (usedLang == "en") _defaultLanguageCount++;
+                        if (!string.IsNullOrWhiteSpace(usedLang) && usedLang != PreferredLanguage)
+                            fallbackLang = usedLang.ToUpper();
                         //the fetched url is applied to the model at save time, keyed by the
                         //card's original FaceURL (see SaveDeckToPath), so nothing is mutated here
                     }
@@ -403,12 +665,23 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             temp.Card.OldFaceURL = originalFace;
             temp.Card.Cardname = nick.Split('\n')[0];
             temp.FetchStatus = outcome; //orange (NotFound) / red (Error/RateLimited) dot on the tile
+            temp.LanguageWarning = fallbackLang;
             if (!CardLookup.ContainsKey(nick)) CardLookup.Add(nick, temp.Card);
             DeckCards.Add(temp);
+            OnPropertyChanged(nameof(TotalCardCount));
+            OnPropertyChanged(nameof(UniqueCardCount));
+            OnPropertyChanged(nameof(DeckCountSummary));
         }
 
         public void SaveDeckToPath()
         {
+            // Generation mode: there is no source file to edit — build one from scratch.
+            if (_isGenerated)
+            {
+                SaveGeneratedDeck();
+                return;
+            }
+
             if (_save == null)
             {
                 FeedbackPopupViewModel.Instance.DisplayErrorMessage("No deck loaded to save");
@@ -465,6 +738,53 @@ namespace TTSDeckEditAndCreationTool.ViewModel
             }
 
             FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Saved Successfully");
+        }
+
+        // Standard MTG card back used by the TTS community / tts-deckconverter, applied
+        // when the user hasn't set their own card back before generating.
+        private const string DefaultBackURL =
+            "http://cloud-3.steamusercontent.com/ugc/998016607072296897/863E1F6C57E4EE5263552051BC4FFBB30D9E61F4/";
+
+        /// <summary>
+        /// Generation-mode save: build a brand-new TTS Saved Object from the on-screen
+        /// cards (one individual image per card) and write it to a user-chosen path.
+        /// </summary>
+        private void SaveGeneratedDeck()
+        {
+            if (DeckCards == null || DeckCards.Count == 0)
+            {
+                FeedbackPopupViewModel.Instance.DisplayErrorMessage("No cards to save");
+                return;
+            }
+
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                InitialDirectory = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Documents", "My Games", "Tabletop Simulator", "Saves", "Saved Objects"),
+                Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*",
+                FileName = "Generated Deck.json"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            string backUrl = string.IsNullOrWhiteSpace(CardBackURL) ? DefaultBackURL : CardBackURL;
+            string saveName = Path.GetFileNameWithoutExtension(dialog.FileName);
+
+            try
+            {
+                GenSavedObject save = TtsDeckBuilder.Build(
+                    DeckCards.Select(c => c.Card), backUrl, saveName);
+                string json = JsonSerializer.Serialize(save, SaveOptions);
+                File.WriteAllText(dialog.FileName, json);
+            }
+            catch (Exception e)
+            {
+                FeedbackPopupViewModel.Instance.DisplayErrorMessage("Error saving file \n\n " + e.Message);
+                return;
+            }
+
+            FeedbackPopupViewModel.Instance.DisplaySmileMessage("Deck Generated Successfully");
         }
 
         /// <summary>Walks every CustomDeck entry in the deck: pile-level, per-card, and inside card States.</summary>

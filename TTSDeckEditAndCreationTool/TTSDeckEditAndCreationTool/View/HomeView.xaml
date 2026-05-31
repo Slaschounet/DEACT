@@ -19,6 +19,7 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Center" Grid.Column="0">
                 <Button Command="{Binding SwitchToDeckImportCommand}" Style="{DynamicResource ImageButton}" BorderThickness="0" Width="200">
@@ -26,13 +27,19 @@
                 </Button>
                 <Label Foreground="White" HorizontalAlignment="Center" FontFamily="{StaticResource BigFont}" FontSize="20">Import</Label>
             </StackPanel>
-            <StackPanel VerticalAlignment="Center"  Grid.Column="1">
+            <StackPanel VerticalAlignment="Center" Grid.Column="1">
+                <Button Command="{Binding SwitchToDeckGenerateCommand}" Style="{DynamicResource ImageButton}" BorderThickness="0" Width="200">
+                    <Image Source="..\Images\add-file-512.png" Margin="20" RenderOptions.BitmapScalingMode="HighQuality"/>
+                </Button>
+                <Label Foreground="White" HorizontalAlignment="Center" FontFamily="{StaticResource BigFont}" FontSize="20">Generate</Label>
+            </StackPanel>
+            <StackPanel VerticalAlignment="Center"  Grid.Column="2">
                 <Button Command="{Binding SwitchToDeckMergeCommand}"  Style="{DynamicResource ImageButton}" BorderThickness="0" Width="200">
                     <Image Source="..\Images\add-file-512.png" Margin="20" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>
                 <Label Foreground="White" HorizontalAlignment="Center" FontFamily="{StaticResource BigFont}" FontSize="20">Merge</Label>
             </StackPanel>
-            <StackPanel VerticalAlignment="Center" Grid.Column="2">
+            <StackPanel VerticalAlignment="Center" Grid.Column="3">
                 <Button Command="{Binding SwitchToQBGCommand}" Style="{DynamicResource ImageButton}" BorderThickness="0" Width="200">
                     <Image Source="..\Images\picture-2-512.png" Margin="20" RenderOptions.BitmapScalingMode="HighQuality"/>
                 </Button>

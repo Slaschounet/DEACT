@@ -32,6 +32,22 @@
             <!-- TargetNullValue avoids an ImageSourceConverter warning while FaceURL is still null during load -->
             <Image Grid.Row="1" Source="{Binding Card.FaceURL, TargetNullValue={x:Null}, FallbackValue={x:Null}}" RenderOptions.BitmapScalingMode="HighQuality"/>
 
+            <!-- Double-faced badge (top-left over the art): flips to a back face via States in TTS -->
+            <Border Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8"
+                    Background="#CC1565C0" CornerRadius="3" Padding="5,2"
+                    Visibility="{Binding IsDoubleFaced, Converter={StaticResource BoolToVis}}"
+                    ToolTip="Double-faced card — flips to its back face in TTS.">
+                <TextBlock Text="⇄ R/V" Foreground="White" FontSize="12" FontWeight="Bold"/>
+            </Border>
+
+            <!-- Language fallback badge (top-right over the art): art is not in the preferred language -->
+            <Border Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8"
+                    Background="#CCB8860B" CornerRadius="3" Padding="5,2"
+                    Visibility="{Binding ShowLanguageWarning, Converter={StaticResource BoolToVis}}"
+                    ToolTip="{Binding LanguageTooltip}">
+                <TextBlock Text="{Binding LanguageWarning}" Foreground="White" FontSize="12" FontWeight="Bold"/>
+            </Border>
+
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>

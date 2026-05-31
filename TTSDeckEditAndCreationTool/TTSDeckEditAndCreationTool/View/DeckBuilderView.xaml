@@ -17,7 +17,15 @@
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
 
-        <Button Style="{DynamicResource FlatButtonStyle}" Height="25" Background="{StaticResource Good}" Content="Save" Width="100" HorizontalAlignment="Right" Margin="5" Command="{Binding SaveDeckCommand}" IsEnabled="{Binding IsNotBusy}"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0">
+            <Border Background="{StaticResource MainLight}" CornerRadius="3" Padding="8,3" Margin="0,0,8,0"
+                    VerticalAlignment="Center"
+                    ToolTip="Total cards counting duplicates (unique cards in parentheses)">
+                <TextBlock Text="{Binding DeckCountSummary}" Foreground="White" VerticalAlignment="Center"
+                           FontFamily="{StaticResource CoreFont}"/>
+            </Border>
+            <Button Style="{DynamicResource FlatButtonStyle}" Height="25" Background="{StaticResource Good}" Content="Save" Width="100" Margin="5" Command="{Binding SaveDeckCommand}" IsEnabled="{Binding IsNotBusy}"/>
+        </StackPanel>
         <StackPanel Orientation="Horizontal">
             <Label Style="{DynamicResource BoldLabel}" VerticalAlignment="Center">Card Back URL:</Label>
             <TextBox Background="Transparent" Foreground="White" Text="{Binding CardBackURL}" Margin="10" Width="200" VerticalContentAlignment="Center"/>
